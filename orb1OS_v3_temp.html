@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>orb1OS v3.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;}
+:root{
+  --accent:#7c6fff;--accent2:#a855f7;--accent3:#22d3ee;
+  --bg:#07071a;--bg2:#0f0f28;--bg3:#1a1a3a;
+  --glass:rgba(15,15,40,0.85);--glass2:rgba(255,255,255,0.05);
+  --border:rgba(124,111,255,0.2);--border2:rgba(255,255,255,0.08);
+  --text:#e2e8f0;--text2:rgba(255,255,255,0.55);--text3:rgba(255,255,255,0.3);
+  --font:'Arial',sans-serif;--mono:'Courier New',monospace;--display:'Tahoma',sans-serif;
+  --win-red:#e84560;--win-min:#f59e0b;--win-max:#10b981;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+
+/* ========== LOGIN SCREEN ========== */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse at 30% 50%,#0d0a2e 0%,#07071a 60%,#000 100%);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:0;
+  transition:opacity 0.8s,transform 0.8s;
+}
+#login-screen.fade-out{opacity:0;transform:scale(1.05);}
+#login-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.lp{position:absolute;border-radius:50%;animation:lpFloat linear infinite;}
+@keyframes lpFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{transform:translateY(-100px) rotate(720deg);opacity:0;}}
+#login-box{
+  display:flex;flex-direction:column;align-items:center;gap:24px;
+  z-index:1;animation:loginIn 0.8s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes loginIn{from{opacity:0;transform:translateY(40px) scale(0.9);}to{opacity:1;transform:none;}}
+#login-logo{
+  width:80px;height:80px;border-radius:22px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;box-shadow:0 0 60px rgba(124,111,255,0.5),0 0 120px rgba(124,111,255,0.2);
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 60px rgba(124,111,255,0.5),0 0 120px rgba(124,111,255,0.2);}50%{box-shadow:0 0 80px rgba(124,111,255,0.8),0 0 160px rgba(124,111,255,0.3);}}
+#login-osname{font-family:var(--display);font-size:42px;font-weight:700;letter-spacing:4px;background:linear-gradient(90deg,#fff,var(--accent),var(--accent2));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;}
+#login-user-avatar{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:40px;
+  border:3px solid rgba(124,111,255,0.4);box-shadow:0 0 30px rgba(124,111,255,0.3);
+  cursor:pointer;transition:transform 0.2s;
+}
+#login-user-avatar:hover{transform:scale(1.05);}
+#login-username{font-family:var(--font);font-size:20px;color:#fff;font-weight:500;letter-spacing:1px;}
+#login-subtitle{font-family:var(--font);font-size:13px;color:var(--text2);}
+.login-inp-wrap{position:relative;width:280px;}
+#login-pass{
+  width:100%;padding:12px 44px 12px 16px;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(124,111,255,0.3);
+  border-radius:12px;color:#fff;font-family:var(--font);font-size:14px;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  user-select:text;
+}
+#login-pass:focus{border-color:var(--accent);box-shadow:0 0 20px rgba(124,111,255,0.25);}
+#login-pass::placeholder{color:var(--text3);}
+#login-go{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:8px;border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;
+}
+#login-hint{font-size:11px;color:var(--text3);font-family:var(--font);}
+#login-time-big{font-family:var(--display);font-size:72px;font-weight:700;color:#fff;letter-spacing:4px;line-height:1;margin-bottom:-8px;}
+#login-date-big{font-family:var(--font);font-size:16px;color:var(--text2);margin-bottom:16px;}
+.login-users{display:flex;gap:16px;margin-top:4px;}
+.login-user-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:10px;border-radius:12px;transition:background 0.2s;}
+.login-user-opt:hover{background:rgba(255,255,255,0.07);}
+.login-user-opt .uav{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid transparent;transition:border-color 0.2s;}
+.login-user-opt.selected .uav{border-color:var(--accent);}
+.login-user-opt span{font-size:12px;color:var(--text2);font-family:var(--font);}
+.login-form{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+.os-selection{display:flex;flex-direction:column;gap:4px;}
+
+/* ========== OS WRAPPER ========== */
+#os{
+  width:100vw;height:100vh;background:var(--bg);
+  display:flex;flex-direction:column;overflow:hidden;
+  font-family:var(--font);position:relative;
+}
+#desktop{flex:1;position:relative;overflow:hidden;}
+#deskarea{position:absolute;inset:0;z-index:1;padding:10px;}
+#wallpaper{position:absolute;inset:0;z-index:0;}
+
+/* ========== TASKBAR ========== */
+#taskbar{
+  height:48px;background:rgba(7,7,26,0.9);backdrop-filter:blur(20px);
+  display:flex;align-items:center;padding:0 8px;gap:4px;
+  border-top:1px solid rgba(124,111,255,0.15);
+  z-index:500;flex-shrink:0;position:relative;
+}
+#start-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;color:#fff;padding:5px 12px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;letter-spacing:0.5px;
+  display:flex;align-items:center;gap:6px;font-family:var(--display);
+  white-space:nowrap;flex-shrink:0;
+}
+#start-btn:hover{filter:brightness(1.15);}
+#clock-area{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;}
+#clock{color:#fff;font-size:13px;font-weight:600;font-family:var(--display);letter-spacing:1px;}
+#date{color:var(--text2);font-size:10px;font-family:var(--font);}
+.tb-btn{
+  background:rgba(255,255,255,0.06);border:1px solid var(--border2);
+  border-radius:7px;color:#fff;padding:3px 10px;font-size:11px;
+  cursor:pointer;display:flex;align-items:center;gap:5px;
+  max-width:130px;overflow:hidden;white-space:nowrap;font-family:var(--font);
+}
+.tb-btn:hover{background:rgba(255,255,255,0.12);}
+.tb-btn.active{background:rgba(124,111,255,0.25);border-color:rgba(124,111,255,0.4);}
+.tb-sep{width:1px;height:28px;background:var(--border2);flex-shrink:0;margin:0 2px;}
+
+/* ========== DESKTOP ICONS ========== */
+.di{
+  position:absolute;display:flex;flex-direction:column;align-items:center;
+  gap:4px;cursor:pointer;padding:8px 6px;border-radius:10px;width:78px;z-index:2;
+  transition:background 0.15s;
+}
+.di:hover{background:rgba(255,255,255,0.1);}
+.di.selected{background:rgba(124,111,255,0.25);outline:1px solid rgba(124,111,255,0.4);}
+.di .ico{font-size:32px;line-height:1;transition:transform 0.1s;}
+.di:hover .ico{transform:scale(1.1);}
+.di span{color:#fff;font-size:11px;text-align:center;text-shadow:0 1px 6px rgba(0,0,0,0.9);font-family:var(--font);}
+.di .ico-custom{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+
+/* ========== WINDOWS ========== */
+.win{
+  position:absolute;background:var(--bg2);
+  border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;
+  min-width:280px;min-height:180px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 0 0.5px rgba(255,255,255,0.05);
+  transition:box-shadow 0.2s;
+}
+.win.hidden{display:none;}
+.win.focused{border-color:rgba(124,111,255,0.4);box-shadow:0 20px 80px rgba(0,0,0,0.6),0 0 30px rgba(124,111,255,0.1);}
+.wtb{
+  height:36px;display:flex;align-items:center;padding:0 10px;gap:6px;
+  cursor:move;flex-shrink:0;
+  background:rgba(0,0,0,0.35);border-bottom:1px solid var(--border2);
+}
+.wtitle{font-size:12px;font-weight:500;flex:1;text-align:center;color:rgba(255,255,255,0.8);font-family:var(--font);}
+/* Windows-style buttons */
+.wb{
+  width:14px;height:14px;border-radius:2px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:rgba(0,0,0,0.8);font-weight:700;
+  transition:filter 0.1s,transform 0.1s;flex-shrink:0;
+}
+.wb:hover{filter:brightness(1.2);transform:scale(1.1);}
+.wclose{background:var(--win-red);}
+.wmin{background:var(--win-min);}
+.wmax{background:var(--win-max);}
+.wclose:hover::after{content:'✕';}
+.wmin:hover::after{content:'−';}
+.wmax:hover::after{content:'□';}
+.wbody{flex:1;overflow:auto;}
+.wbody::-webkit-scrollbar{width:4px;}
+.wbody::-webkit-scrollbar-track{background:transparent;}
+.wbody::-webkit-scrollbar-thumb{background:rgba(124,111,255,0.4);border-radius:4px;}
+
+/* ========== START MENU ========== */
+#start-menu{
+  position:absolute;bottom:48px;left:0;width:280px;
+  background:rgba(8,8,25,0.97);backdrop-filter:blur(24px);
+  border:1px solid var(--border);border-radius:14px;
+  padding:12px;display:none;z-index:800;
+  box-shadow:0 -10px 40px rgba(0,0,0,0.4),0 0 60px rgba(0,0,0,0.3);
+}
+#start-menu.open{display:flex;flex-direction:column;gap:2px;}
+.sm-header{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid var(--border2);margin-bottom:6px;}
+.sm-uav{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.sm-uname{color:#fff;font-size:14px;font-weight:600;font-family:var(--display);}
+.sm-urole{color:var(--text2);font-size:11px;font-family:var(--font);}
+.sm-sec{color:var(--text3);font-size:10px;padding:6px 8px 2px;text-transform:uppercase;letter-spacing:1px;font-family:var(--font);}
+.sm-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:#fff;font-size:13px;font-family:var(--font);}
+.sm-item:hover{background:rgba(124,111,255,0.2);}
+.sm-ico{font-size:18px;width:26px;text-align:center;}
+.sm-footer{display:flex;gap:8px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border2);}
+.sm-foot-btn{flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;}
+
+/* ========== NOTIFICATIONS ========== */
+#notif-area{position:absolute;top:10px;right:10px;z-index:900;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.notif{
+  background:rgba(15,15,35,0.95);backdrop-filter:blur(20px);
+  border:1px solid rgba(124,111,255,0.25);border-radius:12px;
+  padding:10px 14px;color:#fff;min-width:220px;pointer-events:all;
+  animation:notifIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+@keyframes notifIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:none;}}
+.notif-title{font-weight:600;font-size:12px;margin-bottom:2px;font-family:var(--display);letter-spacing:0.5px;}
+.notif-body{color:var(--text2);font-size:11px;font-family:var(--font);}
+
+/* ========== CTX MENU ========== */
+#ctx-menu{
+  position:absolute;background:rgba(8,8,25,0.97);backdrop-filter:blur(20px);
+  border:1px solid var(--border);border-radius:10px;
+  padding:6px;z-index:1000;display:none;min-width:200px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+#ctx-menu.open{display:block;}
+.ctx-section{padding:4px 0;}
+.ctx-item{padding:8px 12px;color:#fff;font-size:12px;cursor:pointer;border-radius:6px;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background 0.15s;}
+.ctx-item:hover{background:rgba(124,111,255,0.2);}
+.ctx-separator{height:1px;background:var(--border2);margin:4px 8px;}
+
+/* ========== TERMINAL ========== */
+#term-out{
+  flex:1;overflow-y:auto;font-family:var(--mono);font-size:13px;
+  color:#a8d8b8;white-space:pre-wrap;line-height:1.7;
+  padding:4px 0;min-height:200px;
+}
+#term-out::-webkit-scrollbar{width:4px;}
+#term-out::-webkit-scrollbar-thumb{background:rgba(124,111,255,0.4);border-radius:4px;}
+.t-err{color:#ff6b6b;}
+.t-ok{color:#4ade80;}
+.t-info{color:#60a5fa;}
+.t-warn{color:#fbbf24;}
+.t-prompt{color:#c9d1d9;}
+.t-sys{color:var(--accent);}
+.t-dim{color:rgba(255,255,255,0.3);}
+
+/* ========== ICON EDITOR ========== */
+#win-iconeditor .icon-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px;
+}
+.icon-slot{
+  aspect-ratio:1;background:var(--bg3);border-radius:10px;
+  border:2px solid transparent;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;cursor:pointer;
+  transition:all 0.15s;padding:8px;
+}
+.icon-slot:hover{border-color:var(--accent);background:rgba(124,111,255,0.1);}
+.icon-slot.selected{border-color:var(--accent);background:rgba(124,111,255,0.2);}
+.icon-slot .ico-big{font-size:28px;}
+.icon-slot .ico-lbl{font-size:10px;color:var(--text2);font-family:var(--font);text-align:center;}
+.emoji-picker{display:flex;flex-wrap:wrap;gap:6px;padding:12px;max-height:200px;overflow-y:auto;}
+.ep-item{font-size:22px;cursor:pointer;padding:4px;border-radius:6px;transition:background 0.1s;}
+.ep-item:hover{background:rgba(124,111,255,0.2);}
+
+/* ========== MISC ========== */
+.win-resize-handle{
+  position:absolute;right:0;bottom:0;width:14px;height:14px;
+  cursor:se-resize;z-index:10;
+}
+.win-resize-handle::after{
+  content:'';position:absolute;right:3px;bottom:3px;
+  width:8px;height:8px;
+  border-right:2px solid rgba(255,255,255,0.2);
+  border-bottom:2px solid rgba(255,255,255,0.2);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes logoPulse{
+  0%,100%{transform:scale(1);opacity:0.9;}
+  50%{transform:scale(1.1);opacity:1;}
+}
+@keyframes titleGlow{
+  0%,100%{text-shadow:0 0 10px rgba(124,111,255,0.5);}
+  50%{text-shadow:0 0 20px rgba(124,111,255,0.8),0 0 30px rgba(124,111,255,0.4);}
+}
+@keyframes lockOverlayIn{
+  from{opacity:0;transform:scale(0.9);}
+  to{opacity:1;transform:scale(1);}
+}
+@keyframes titlePulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.05);}
+}
+@keyframes subtitleFade{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes btnSlideIn{
+  from{opacity:0;transform:translateY(40px) scale(0.9);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* ========== SELECTION RECTANGLE ========== */
+#selection-rect{
+  position:absolute;border:1px solid #0078d4;
+  background:rgba(0,120,212,0.1);
+  pointer-events:none;z-index:100;
+  display:none;
+}
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="login-screen" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0d0a2e,#07071a);display:flex;align-items:center;justify-content:center;">
+  <div style="text-align:center;">
+    <div style="font-size:64px;margin-bottom:20px;animation:logoPulse 3s ease-in-out infinite;">?</div>
+    <div style="font-size:32px;font-weight:700;color:#fff;margin-bottom:30px;font-family:var(--display);animation:titleGlow 2s ease-in-out infinite;">orb1OS</div>
+    <div style="display:flex;flex-direction:column;gap:15px;width:300px;">
+      <input id="username" type="text" placeholder="Kullanici adi" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+      <input id="password" type="password" placeholder="sifre" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+      <button onclick="doLogin()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;padding:12px;border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;">Giris Yap</button>
+    </div>
+    <div style="color:var(--text2);font-size:12px;margin-top:20px;">Admin: admin / 1234 | Misafir: misafir</div>
+  </div>
+</div>
+
+<!-- ========== OS ========== -->
+<div id="os" style="display:none;">
+<div id="desktop">
+  <canvas id="wallpaper"></canvas>
+  <div id="notif-area"></div>
+
+  <!-- Context Menu -->
+  <div id="ctx-menu">
+    <div class="ctx-section">
+      <div class="ctx-item" onclick="openApp('files');closeCtx()">📁 Dosya Yöneticisi</div>
+      <div class="ctx-item" onclick="openApp('editor');closeCtx()">📝 Not Defteri</div>
+      <div class="ctx-item" onclick="openApp('calc');closeCtx()">🧮 Hesap Makinesi</div>
+      <div class="ctx-item" onclick="openApp('paint');closeCtx()">🎨 Paint</div>
+    </div>
+    <div class="ctx-separator"></div>
+    <div class="ctx-section">
+      <div class="ctx-item" onclick="changeWallpaper();closeCtx()">🖌️ Duvar Kağıdı Değiştir</div>
+      <div class="ctx-item" onclick="openApp('settings');closeCtx()">⚙️ Ayarlar</div>
+      <div class="ctx-item" onclick="openApp('control');closeCtx()">🔧 Denetim Masası</div>
+    </div>
+    <div class="ctx-separator"></div>
+    <div class="ctx-section">
+      <div class="ctx-item" onclick="showNotif('orb1OS','Masaüstü yenilendi!');closeCtx()">🔄 Yenile</div>
+      <div class="ctx-item" onclick="emptyTrash();closeCtx()">🗑️ Çöpü Boşalt</div>
+      <div class="ctx-item" onclick="doRestart();closeCtx()">🔄 Yeniden Başlat</div>
+      <div class="ctx-item" onclick="doShutdown();closeCtx()">⏻ Kapat</div>
+    </div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="start-menu">
+    <div class="sm-header">
+      <div class="sm-uav" id="sm-uav">👤</div>
+      <div class="sm-uav" id="sm-uav">👤</div>
+      <div>
+        <div class="sm-uname" id="sm-uname">Kullanıcı</div>
+        <div class="sm-urole">orb1OS v3.0</div>
+      </div>
+    </div>
+    <div class="sm-sec">uygulamalar</div>
+    <div class="sm-item" onclick="openApp('browser');closeStart()"><div class="sm-ico"><img src="browser.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Tarayıcı</div>
+    <div class="sm-item" onclick="openApp('files');closeStart()"><div class="sm-ico"><img src="files.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Dosya Yöneticisi</div>
+    <div class="sm-item" onclick="openApp('editor');closeStart()"><div class="sm-ico"><img src="editor.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Not Defteri</div>
+    <div class="sm-item" onclick="openApp('calc');closeStart()"><div class="sm-ico"><img src="calc.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Hesap Makinesi</div>
+    <div class="sm-item" onclick="openApp('terminal');closeStart()"><div class="sm-ico"><img src="terminal.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Terminal</div>
+    <div class="sm-item" onclick="openApp('music');closeStart()"><div class="sm-ico"><img src="music.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Müzik Çalar</div>
+    <div class="sm-item" onclick="openApp('paint');closeStart()"><div class="sm-ico"><img src="paint.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Paint</div>
+    <div class="sm-item" onclick="openApp('weather');closeStart()"><div class="sm-ico"><img src="weather.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Hava Durumu</div>
+    <div class="sm-item" onclick="openApp('trash');closeStart()"><div class="sm-ico"><img src="trash.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Çöp Kutusu</div>
+    <div class="sm-item" onclick="openApp('control');closeStart()"><div class="sm-ico"><img src="control.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Denetim Masası</div>
+    <div class="sm-item" onclick="openApp('settings');closeStart()"><div class="sm-ico"><img src="settings.ico" style="width:18px;height:18px;border-radius:3px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div>Ayarlar</div>
+    <div class="sm-footer">
+      <button class="sm-foot-btn" style="background:rgba(124,111,255,0.15);color:#fff;" onclick="doRestart();closeStart()">🔄 Yeniden Başlat</button>
+      <button class="sm-foot-btn" style="background:rgba(232,69,96,0.2);color:#ff6b6b;" onclick="doShutdown();closeStart()">⏻ Kapat</button>
+    </div>
+  </div>
+
+  <!-- Desktop Icons -->
+  <div id="deskarea"></div>
+  
+  <!-- Selection Rectangle -->
+  <div id="selection-rect"></div>
+
+  <!-- BROWSER -->
+  <div id="win-browser" class="win hidden" style="top:30px;left:50px;width:600px;height:420px;">
+    <div class="wtb" onmousedown="startDrag('win-browser',event)">
+      <div class="wb wclose" onclick="closeApp('browser')"></div>
+      <div class="wb wmin" onclick="minApp('browser')"></div>
+      <div class="wb wmax" onclick="maxApp('win-browser')"></div>
+      <span class="wtitle"><img src="browser.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Tarayıcı</span>
+    </div>
+    <div class="wbody" style="display:flex;flex-direction:column;">
+      <div style="display:flex;gap:4px;padding:6px;background:#0a0a1e;align-items:center;flex-wrap:wrap;">
+        <button onclick="bNav(-1)" style="background:#1a1a30;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;">◀</button>
+        <button onclick="bNav(1)" style="background:#1a1a30;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;">▶</button>
+        <button onclick="bRefresh()" style="background:#1a1a30;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;">↻</button>
+        <input id="url-bar" type="text" value="https://www.google.com" style="flex:1;min-width:200px;background:#1a1a30;border:1px solid var(--border);color:#fff;padding:5px 10px;border-radius:6px;font-size:12px;outline:none;font-family:var(--mono);" onkeydown="if(event.key==='Enter')bGo()" onmousedown="event.stopPropagation()" onfocus="this.select()"/>
+        <button onclick="bGo()" style="background:var(--accent);border:none;color:#fff;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--font);">Git</button>
+      </div>
+      <div style="display:flex;gap:6px;padding:4px 6px;background:#0a0a1e;border-bottom:1px solid var(--border2);">
+        <button onclick="quickGoogle()" style="background:linear-gradient(135deg,#4285f4,#34a853);border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--font);">Google</button>
+        <button onclick="quickYouTube()" style="background:linear-gradient(135deg,#ff0000,#cc0000);border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--font);">YouTube</button>
+        <button onclick="quickGmail()" style="background:linear-gradient(135deg,#ea4335,#d93025);border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-family:var(--font);">Gmail</button>
+      </div>
+      <iframe id="bframe" src="https://www.google.com" style="flex:1;border:none;width:100%;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-browser',event)"></div>
+  </div>
+
+  <!-- FILES -->
+  <div id="win-files" class="win hidden" style="top:40px;left:70px;width:480px;height:360px;">
+    <div class="wtb" onmousedown="startDrag('win-files',event)">
+      <div class="wb wclose" onclick="closeApp('files')"></div>
+      <div class="wb wmin" onclick="minApp('files')"></div>
+      <div class="wb wmax" onclick="maxApp('win-files')"></div>
+      <span class="wtitle"><img src="files.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Dosya Yöneticisi</span>
+    </div>
+    <div class="wbody" style="display:flex;height:100%;">
+      <div style="width:120px;background:#0a0a1e;padding:10px;border-right:1px solid var(--border2);display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+        <div onclick="fNav('home')" style="padding:7px 8px;border-radius:6px;color:rgba(255,255,255,0.8);font-size:12px;cursor:pointer;background:rgba(124,111,255,0.3);font-family:var(--font);">🏠 Ana</div>
+        <div onclick="fNav('docs')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">📄 Belgeler</div>
+        <div onclick="fNav('pics')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">🖼 Resimler</div>
+        <div onclick="fNav('music')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">🎵 Müzik</div>
+        <div onclick="fNav('videos')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">🎬 Video</div>
+        <div onclick="fNav('downloads')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">💾 İndirilenler</div>
+        <div onclick="fNav('trash')" style="padding:7px 8px;border-radius:6px;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);">🗑 Çöp</div>
+      </div>
+      <div style="flex:1;padding:12px;display:flex;flex-direction:column;">
+        <div id="f-path" style="font-size:11px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);">~/</div>
+        <div id="f-grid" style="display:flex;flex-wrap:wrap;gap:8px;flex:1;align-content:flex-start;"></div>
+        <div style="padding-top:8px;border-top:1px solid var(--border2);font-size:11px;color:var(--text3);font-family:var(--font);">Disk: 128 GB · Kullanılan: 42 GB (33%)</div>
+      </div>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-files',event)"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="win-editor" class="win hidden" style="top:50px;left:80px;width:500px;height:380px;">
+    <div class="wtb" onmousedown="startDrag('win-editor',event)">
+      <div class="wb wclose" onclick="closeApp('editor')"></div>
+      <div class="wb wmin" onclick="minApp('editor')"></div>
+      <div class="wb wmax" onclick="maxApp('win-editor')"></div>
+      <span class="wtitle"><img src="editor.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Not Defteri</span>
+    </div>
+    <div class="wbody" style="display:flex;flex-direction:column;">
+      <div style="display:flex;gap:4px;padding:6px 8px;background:#0a0a1e;border-bottom:1px solid var(--border2);flex-wrap:wrap;align-items:center;">
+        <select id="e-font" onchange="eFormat()" style="background:#1a1a30;border:1px solid var(--border2);color:#fff;padding:3px 6px;border-radius:5px;font-size:11px;" onmousedown="event.stopPropagation()">
+          <option>Sans-Serif</option><option>Monospace</option><option>Serif</option>
+        </select>
+        <select id="e-size" onchange="eFormat()" style="background:#1a1a30;border:1px solid var(--border2);color:#fff;padding:3px 6px;border-radius:5px;font-size:11px;" onmousedown="event.stopPropagation()">
+          <option>12</option><option selected>14</option><option>16</option><option>18</option><option>20</option>
+        </select>
+        <button onclick="document.execCommand('bold')" style="background:#1a1a30;border:none;color:#fff;padding:3px 9px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:12px;">B</button>
+        <button onclick="document.execCommand('italic')" style="background:#1a1a30;border:none;color:#fff;padding:3px 9px;border-radius:4px;cursor:pointer;font-style:italic;font-size:12px;">I</button>
+        <button onclick="document.execCommand('underline')" style="background:#1a1a30;border:none;color:#fff;padding:3px 9px;border-radius:4px;cursor:pointer;text-decoration:underline;font-size:12px;">U</button>
+        <input type="color" id="e-color" value="#ffffff" onchange="document.execCommand('foreColor',false,this.value)" style="width:28px;height:22px;border:none;border-radius:4px;cursor:pointer;background:none;padding:0;" onmousedown="event.stopPropagation()"/>
+        <button onclick="eSave()" style="margin-left:auto;background:var(--accent);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:var(--font);">💾 Kaydet</button>
+      </div>
+      <div id="editor-area" contenteditable="true" style="flex:1;padding:14px;font-size:14px;outline:none;line-height:1.8;color:var(--text);background:var(--bg2);" onmousedown="event.stopPropagation()">orb1OS Not Defteri'ne hoş geldiniz! Yazmaya başlayın...</div>
+      <div id="e-status" style="background:#0a0a1e;padding:3px 10px;font-size:11px;color:var(--text3);border-top:1px solid var(--border2);font-family:var(--mono);">0 kelime · 0 karakter</div>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-editor',event)"></div>
+  </div>
+
+  <!-- CALC -->
+  <div id="win-calc" class="win hidden" style="top:60px;left:90px;width:260px;height:370px;">
+    <div class="wtb" onmousedown="startDrag('win-calc',event)">
+      <div class="wb wclose" onclick="closeApp('calc')"></div>
+      <div class="wb wmin" onclick="minApp('calc')"></div>
+      <div class="wb wmax"></div>
+      <span class="wtitle"><img src="calc.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Hesap Makinesi</span>
+    </div>
+    <div class="wbody" style="background:#0d0d20;padding:10px;display:flex;flex-direction:column;gap:5px;">
+      <div style="background:#07071a;border-radius:8px;padding:10px;text-align:right;min-height:58px;">
+        <div id="c-hist" style="color:var(--text3);font-size:11px;min-height:16px;font-family:var(--mono);"></div>
+        <div id="c-disp" style="color:#fff;font-size:28px;font-weight:300;word-break:break-all;font-family:var(--display);">0</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;">
+        <button onclick="cNum('C')" style="background:#2a2a40;border:none;color:#fff;padding:12px;border-radius:7px;font-size:13px;cursor:pointer;font-family:var(--font);">C</button>
+        <button onclick="cNum('+/-')" style="background:#2a2a40;border:none;color:#fff;padding:12px;border-radius:7px;font-size:13px;cursor:pointer;">+/-</button>
+        <button onclick="cNum('%')" style="background:#2a2a40;border:none;color:#fff;padding:12px;border-radius:7px;font-size:13px;cursor:pointer;">%</button>
+        <button onclick="cClear()" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">C</button>
+        <button onclick="cOp('/')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">÷</button>
+        <button onclick="cOp('%')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">%</button>
+        <button onclick="cNum('9')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">9</button>
+        <button onclick="cOp('*')" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">×</button>
+        <button onclick="cNum('4')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">4</button>
+        <button onclick="cNum('5')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">5</button>
+        <button onclick="cNum('6')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">6</button>
+        <button onclick="cOp('-')" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">−</button>
+        <button onclick="cNum('1')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">1</button>
+        <button onclick="cNum('2')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">2</button>
+        <button onclick="cNum('3')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">3</button>
+        <button onclick="cOp('+')" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">+</button>
+        <button onclick="cNum('sqrt')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:12px;cursor:pointer;">√</button>
+        <button onclick="cNum('0')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">0</button>
+        <button onclick="cNum('.')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">.</button>
+        <button onclick="cNum('=')" style="background:var(--accent2);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">=</button>
+        <button onclick="c('-')" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">−</button>
+        <button onclick="c('1')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">1</button>
+        <button onclick="c('2')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">2</button>
+        <button onclick="c('3')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">3</button>
+        <button onclick="c('+')" style="background:var(--accent);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">+</button>
+        <button onclick="c('sqrt')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:12px;cursor:pointer;">√</button>
+        <button onclick="c('0')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">0</button>
+        <button onclick="c('.')" style="background:#1a1a30;border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;">.</button>
+        <button onclick="c('=')" style="background:var(--accent2);border:none;color:#fff;padding:12px;border-radius:7px;font-size:14px;cursor:pointer;font-weight:600;">=</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMINAL -->
+  <div id="win-terminal" class="win hidden" style="top:50px;left:60px;width:560px;height:400px;">
+    <div class="wtb" onmousedown="startDrag('win-terminal',event)">
+      <div class="wb wclose" onclick="closeApp('terminal')"></div>
+      <div class="wb wmin" onclick="minApp('terminal')"></div>
+      <div class="wb wmax" onclick="maxApp('win-terminal')"></div>
+      <span class="wtitle"><img src="terminal.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Terminal — orb1@os</span>
+    </div>
+    <div class="wbody" style="background:#030310;padding:10px 14px;display:flex;flex-direction:column;">
+      <div id="term-out"></div>
+      <div style="display:flex;align-items:center;gap:0;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);">
+        <span style="color:#7ee787;font-family:var(--mono);font-size:13px;" id="term-prompt-user">orb1</span>
+        <span style="color:rgba(255,255,255,0.3);font-family:var(--mono);font-size:13px;">@</span>
+        <span style="color:#79c0ff;font-family:var(--mono);font-size:13px;">os</span>
+        <span style="color:rgba(255,255,255,0.3);font-family:var(--mono);font-size:13px;">:</span>
+        <span id="term-cwd" style="color:#d2a679;font-family:var(--mono);font-size:13px;">~</span>
+        <span style="color:rgba(255,255,255,0.5);font-family:var(--mono);font-size:13px;margin-right:6px;">$</span>
+        <input id="term-inp" type="text" style="flex:1;background:transparent;border:none;color:#c9d1d9;font-family:var(--mono);font-size:13px;outline:none;" onkeydown="termKey(event)" onmousedown="event.stopPropagation()" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      </div>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-terminal',event)"></div>
+  </div>
+
+  <!-- MUSIC -->
+  <div id="win-music" class="win hidden" style="top:50px;left:80px;width:320px;height:340px;">
+    <div class="wtb" onmousedown="startDrag('win-music',event)">
+      <div class="wb wclose" onclick="closeApp('music')"></div>
+      <div class="wb wmin" onclick="minApp('music')"></div>
+      <div class="wb wmax"></div>
+      <span class="wtitle"><img src="music.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Müzik Çalar</span>
+    </div>
+    <div class="wbody" style="background:linear-gradient(160deg,#0f0a20,#1a1030);display:flex;flex-direction:column;align-items:center;padding:20px;gap:12px;">
+      <div id="disc" style="width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:38px;box-shadow:0 0 40px rgba(124,111,255,0.4);">🎵</div>
+      <div style="text-align:center;">
+        <div id="m-title" style="color:#fff;font-size:14px;font-weight:600;font-family:var(--display);letter-spacing:0.5px;"></div>
+        <div id="m-artist" style="color:var(--text2);font-size:12px;margin-top:2px;font-family:var(--font);">orb1 Sounds</div>
+      </div>
+      <div style="width:100%;display:flex;align-items:center;gap:8px;">
+        <span id="m-cur" style="font-size:10px;color:var(--text3);min-width:30px;font-family:var(--mono);">0:00</span>
+        <input type="range" id="m-prog" min="0" max="100" value="0" style="flex:1;accent-color:var(--accent);" onmousedown="event.stopPropagation()" oninput="mSeek(this.value)"/>
+        <span id="m-dur" style="font-size:10px;color:var(--text3);min-width:30px;text-align:right;font-family:var(--mono);">3:24</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button onclick="mPrev()" style="background:var(--glass2);border:1px solid var(--border2);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:15px;">⏮</button>
+        <button id="m-play" onclick="mToggle()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;width:52px;height:52px;border-radius:50%;cursor:pointer;font-size:20px;box-shadow:0 0 20px rgba(124,111,255,0.4);">▶</button>
+        <button onclick="mNext()" style="background:var(--glass2);border:1px solid var(--border2);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:15px;">⏭</button>
+        <button onclick="mShuffle()" style="background:var(--glass2);border:1px solid var(--border2);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:13px;opacity:0.6;">⇀</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;width:100%;">
+        <span style="font-size:14px;color:var(--text2);">🔈</span>
+        <input type="range" id="m-vol" min="0" max="100" value="75" style="flex:1;accent-color:var(--accent);" onmousedown="event.stopPropagation()"/>
+        <span style="font-size:14px;color:var(--text2);">🔊</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINT -->
+  <div id="win-paint" class="win hidden" style="top:40px;left:60px;width:520px;height:400px;">
+    <div class="wtb" onmousedown="startDrag('win-paint',event)">
+      <div class="wb wclose" onclick="closeApp('paint')"></div>
+      <div class="wb wmin" onclick="minApp('paint')"></div>
+      <div class="wb wmax" onclick="maxApp('win-paint')"></div>
+      <span class="wtitle"><img src="paint.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Paint</span>
+    </div>
+    <div class="wbody" style="display:flex;flex-direction:column;">
+      <div style="display:flex;gap:5px;padding:6px 8px;background:#0a0a1e;border-bottom:1px solid var(--border2);align-items:center;flex-wrap:wrap;">
+        <button id="pt-pen" onclick="setTool('pen')" style="background:var(--accent);border:none;color:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);">✏️ Kalem</button>
+        <button onclick="setTool('eraser')" style="background:#1a1a30;border:none;color:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);">🧹 Silgi</button>
+        <button onclick="setTool('fill')" style="background:#1a1a30;border:none;color:#fff;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);">🪣 Doldur</button>
+        <input type="color" id="pt-color" value="#7c6fff" style="width:28px;height:26px;border:none;border-radius:4px;cursor:pointer;background:none;padding:0;" onmousedown="event.stopPropagation()"/>
+        <input type="range" id="pt-size" min="1" max="30" value="4" style="width:60px;accent-color:var(--accent);" onmousedown="event.stopPropagation()"/>
+        <span id="pt-sz" style="color:var(--text2);font-size:11px;min-width:24px;font-family:var(--mono);">4px</span>
+        <button onclick="ptUndo()" style="background:#1a1a30;border:none;color:#fff;padding:4px 8px;border-radius:5px;cursor:pointer;font-size:12px;">↩</button>
+        <button onclick="ptClear()" style="margin-left:auto;background:#2a1a1a;border:1px solid rgba(232,69,96,0.3);color:#ff6b6b;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);">🗑 Temizle</button>
+      </div>
+      <canvas id="pt-canvas" style="flex:1;background:#fff;cursor:crosshair;width:100%;" onmousedown="ptDown(event)" onmousemove="ptMove(event)" onmouseup="ptUp()" onmouseleave="ptUp()"></canvas>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-paint',event)"></div>
+  </div>
+
+  <!-- WEATHER -->
+  <div id="win-weather" class="win hidden" style="top:60px;left:90px;width:320px;height:340px;">
+    <div class="wtb" onmousedown="startDrag('win-weather',event)">
+      <div class="wb wclose" onclick="closeApp('weather')"></div>
+      <div class="wb wmin" onclick="minApp('weather')"></div>
+      <div class="wb wmax"></div>
+      <span class="wtitle"><img src="weather.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Hava Durumu</span>
+    </div>
+    <div class="wbody" style="background:linear-gradient(160deg,#0f1b3d,#1a2a5e);padding:20px;color:#fff;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:48px;font-weight:300;font-family:var(--display);letter-spacing:2px;">22°C</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:13px;font-family:var(--font);">Bursa, Türkiye</div>
+          <div style="color:rgba(255,255,255,0.5);font-size:12px;font-family:var(--font);margin-top:4px;">Güneşli</div>
+        </div>
+        <div style="font-size:60px;line-height:1;">☀️</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:12px;font-size:12px;color:rgba(255,255,255,0.7);backdrop-filter:blur(10px);">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>💧 Nem</span><span>45%</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>💨 Rüzgar</span><span>12 km/s</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>☀️ UV İndeksi</span><span>6 (Yüksek)</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>👁 Görüş</span><span>10 km</span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7)"><div style="font-size:22px;">⛅</div>Pzt<br>18°</div>
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7)"><div style="font-size:22px;">🌧</div>Sal<br>15°</div>
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7)"><div style="font-size:22px;">☀️</div>Çar<br>24°</div>
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7)"><div style="font-size:22px;">☀️</div>Per<br>26°</div>
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.7)"><div style="font-size:22px;">⛅</div>Cum<br>21°</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="win-settings" class="win hidden" style="top:50px;left:80px;width:460px;height:380px;">
+    <div class="wtb" onmousedown="startDrag('win-settings',event)">
+      <div class="wb wclose" onclick="closeApp('settings')"></div>
+      <div class="wb wmin" onclick="minApp('settings')"></div>
+      <div class="wb wmax" onclick="maxApp('win-settings')"></div>
+      <span class="wtitle"><img src="settings.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Ayarlar</span>
+    </div>
+    <div class="wbody" style="display:flex;height:100%;">
+      <div style="width:140px;background:#0a0a1e;padding:10px;border-right:1px solid var(--border2);display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+        <div onclick="sSection('wallpaper')" class="sm-item" style="font-size:12px;padding:7px 8px;">🎨 Duvar Kağıdı</div>
+        <div onclick="sSection('account')" class="sm-item" style="font-size:12px;padding:7px 8px;">👤 Hesap</div>
+        <div onclick="sSection('display')" class="sm-item" style="font-size:12px;padding:7px 8px;">🖥 Görünüm</div>
+        <div onclick="sSection('about')" class="sm-item" style="font-size:12px;padding:7px 8px;">ℹ️ Hakkında</div>
+      </div>
+      <div id="s-content" style="flex:1;padding:16px;color:#fff;font-size:13px;overflow-y:auto;"></div>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-settings',event)"></div>
+  </div>
+
+  <!-- TRASH -->
+  <div id="win-trash" class="win hidden" style="top:60px;left:100px;width:420px;height:320px;">
+    <div class="wtb" onmousedown="startDrag('win-trash',event)">
+      <div class="wb wclose" onclick="closeApp('trash')"></div>
+      <div class="wb wmin" onclick="minApp('trash')"></div>
+      <div class="wb wmax"></div>
+      <span class="wtitle"><img src="trash.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Çöp Kutusu</span>
+    </div>
+    <div class="wbody" style="display:flex;flex-direction:column;padding:16px;background:#0a0a1e;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="font-size:48px;">🗑️</div>
+        <div>
+          <div style="color:#fff;font-size:16px;font-weight:600;font-family:var(--font);">Çöp Kutusu</div>
+          <div style="color:var(--text2);font-size:12px;font-family:var(--font);">Silinen dosyalar burada gösterilir</div>
+        </div>
+      </div>
+      <div style="flex:1;background:#07071a;border-radius:8px;padding:12px;border:1px solid var(--border2);">
+        <div style="color:var(--text3);font-size:12px;font-family:var(--font);text-align:center;padding:20px;">
+          Çöp kutusu boş<br>
+          <span style="font-size:11px;">Silinen ögeler burada görünecek</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button onclick="emptyTrash()" style="background:rgba(232,69,96,0.15);border:1px solid rgba(232,69,96,0.3);color:#ff6b6b;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--font);">Çöpü Boşalt</button>
+        <button onclick="restoreTrash()" style="background:rgba(124,111,255,0.15);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--font);">Tümünü Geri Yükle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROL PANEL -->
+  <div id="win-control" class="win hidden" style="top:50px;left:80px;width:520px;height:400px;">
+    <div class="wtb" onmousedown="startDrag('win-control',event)">
+      <div class="wb wclose" onclick="closeApp('control')"></div>
+      <div class="wb wmin" onclick="minApp('control')"></div>
+      <div class="wb wmax" onclick="maxApp('win-control')"></div>
+      <span class="wtitle"><img src="control.ico" style="width:14px;height:14px;border-radius:2px;vertical-align:middle;margin-right:6px;" onerror="this.style.display='none';" />Denetim Masası</span>
+    </div>
+    <div class="wbody" style="display:flex;height:100%;">
+      <div style="width:140px;background:#0a0a1e;padding:10px;border-right:1px solid var(--border2);display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+        <div onclick="cSection('system')" class="sm-item" style="font-size:12px;padding:7px 8px;">💻 Sistem</div>
+        <div onclick="cSection('devices')" class="sm-item" style="font-size:12px;padding:7px 8px;">🖥️ Aygıtlar</div>
+        <div onclick="cSection('network')" class="sm-item" style="font-size:12px;padding:7px 8px;">🌐 Ağ</div>
+        <div onclick="cSection('security')" class="sm-item" style="font-size:12px;padding:7px 8px;">🔒 Güvenlik</div>
+        <div onclick="cSection('programs')" class="sm-item" style="font-size:12px;padding:7px 8px;">📦 Programlar</div>
+        <div onclick="cSection('accounts')" class="sm-item" style="font-size:12px;padding:7px 8px;">👥 Hesaplar</div>
+      </div>
+      <div id="c-content" style="flex:1;padding:16px;color:#fff;font-size:13px;overflow-y:auto;"></div>
+    </div>
+    <div class="win-resize-handle" onmousedown="startResize('win-control',event)"></div>
+  </div>
+
+  <!-- SHUTDOWN DIALOG -->
+  <div id="win-shutdown" class="win hidden" style="top:50%;left:50%;transform:translate(-50%,-50%);width:280px;height:170px;z-index:990;">
+    <div class="wtb" onmousedown="startDrag('win-shutdown',event)">
+      <div class="wb wclose" onclick="closeApp('shutdown')"></div>
+      <div class="wb wmin" style="cursor:default;opacity:0.3;"></div>
+      <div class="wb wmax" style="cursor:default;opacity:0.3;"></div>
+      <span class="wtitle">⏻ Sistemi Kapat</span>
+    </div>
+    <div class="wbody" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;background:#0d0d20;">
+      <div style="color:var(--text2);font-size:13px;font-family:var(--font);">Ne yapmak istiyorsunuz?</div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="doRestart()" style="background:rgba(124,111,255,0.2);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font);">🔄 Yeniden Başlat</button>
+        <button onclick="doOff()" style="background:rgba(232,69,96,0.2);border:1px solid rgba(232,69,96,0.3);color:#ff6b6b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font);">⏻ Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCK SCREEN (shown on power off) -->
+  <div id="lock-overlay" style="display:none;position:absolute;inset:0;z-index:995;background:#000;align-items:center;justify-content:center;flex-direction:column;gap:20px;animation:lockOverlayIn 0.8s ease-out;">
+    <div style="font-family:var(--display);font-size:80px;font-weight:700;color:#fff;letter-spacing:6px;animation:titlePulse 3s ease-in-out infinite;" id="lock-time">00:00</div>
+    <div style="font-family:var(--font);font-size:16px;color:var(--text2);animation:subtitleFade 1s ease-out 0.5s both;" id="lock-date"></div>
+    <div style="font-family:var(--font);font-size:13px;color:var(--text3);margin-top:20px;cursor:pointer;animation:btnSlideIn 1s ease-out 0.7s both;" onclick="doWake()">? Uyandrmak için tklayn</div>
+  </div>
+
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar">
+  <button id="start-btn" onclick="toggleStart()">⊞ orb1OS</button>
+  <div class="tb-sep"></div>
+  <div id="tb-apps" style="display:flex;gap:4px;flex:1;overflow:hidden;min-width:0;"></div>
+  <div style="display:flex;align-items:center;gap:6px;margin-left:4px;flex-shrink:0;">
+    <span style="color:var(--text2);font-size:15px;cursor:pointer;" title="Ses">🔊</span>
+    <span style="color:var(--text2);font-size:15px;" title="Wi-Fi">📶</span>
+    <span style="color:var(--text2);font-size:15px;" title="Batarya">🔋</span>
+    <div class="tb-sep"></div>
+    <div id="clock-area">
+      <div id="clock">--:--</div>
+      <div id="date"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== STATE =====
+const wallpapers=[
+  'radial-gradient(ellipse at 20% 50%,#0d0a2e 0%,#07071a 60%)',
+  'radial-gradient(ellipse at 80% 20%,#0a2e0d 0%,#07071a 60%)',
+  'radial-gradient(ellipse at 50% 80%,#2e0a0d 0%,#07071a 60%)',
+  'radial-gradient(ellipse at 30% 40%,#0a1229 0%,#07071a 60%)',
+  'radial-gradient(ellipse at 70% 60%,#1a150a 0%,#07071a 60%)',
+  'radial-gradient(ellipse at 40% 30%,#0d1a2e 0%,#07071a 50%,#1a0720 100%)'
+];
+let wpIdx=0;
+let openW={};let dragSt=null;let resizeSt=null;
+let zTop=100;
+let termHist=[];let termPos=0;let termCwd='~';
+let cVal='';let cOp='';let cPrev='';let cNew=true;
+let mSongs=[{t:'Cosmic Waves',d:204},{t:'Digital Horizon',d:187},{t:'Neon Dreams',d:231},{t:'Space Echo',d:198},{t:'Orb Signal',d:215},{t:'Purple Rain',d:220},{t:'Starlight',d:195}];
+let mIdx=0;let mPlaying=false;let mTime=0;let mInterval=null;let mDisc=0;let mDiscInt=null;
+let ptTool='pen';let ptDrawing=false;let ptLast=null;let ptCtx=null;let ptHistory=[];
+let currentUser={name:'Kullanici',avatar:'?'};
+let selectedIconIdx=null;
+let selectedIcons=new Set(); // Çoklu seçim için
+let isMultiSelecting=false;
+let multiSelectStart=null;
+let localIcons=[]; // Store local .ico files
+
+// Çoklu seçim dikdörtgeni için deðiþkenler
+let isRectSelecting=false;
+let rectStartX=0;
+let rectStartY=0;
+let selectionRect=null;
+
+// ===== DESKTOP ICONS DATA =====
+let desktopIcons=[
+  {id:'browser',ico:'browser.ico',label:'Tarayici',x:16,y:16,type:'file'},
+  {id:'files',ico:'files.ico',label:'Dosyalar',x:96,y:16,type:'file'},
+  {id:'calc',ico:'calc.ico',label:'Hesap Mak.',x:176,y:16,type:'file'},
+  {id:'editor',ico:'editor.ico',label:'Not Defteri',x:256,y:16,type:'file'},
+  {id:'terminal',ico:'terminal.ico',label:'Terminal',x:16,y:110,type:'file'},
+  {id:'music',ico:'music.ico',label:'Müzik',x:96,y:110,type:'file'},
+  {id:'paint',ico:'paint.ico',label:'Paint',x:176,y:110,type:'file'},
+  {id:'weather',ico:'weather.ico',label:'Hava Durumu',x:256,y:110,type:'file'},
+  {id:'trash',ico:'trash.ico',label:'Çöp Kutusu',x:16,y:204,type:'file'},
+  {id:'settings',ico:'settings.ico',label:'Ayarlar',x:96,y:204,type:'file'},
+  {id:'control',ico:'control.ico',label:'Denetim Masasi',x:176,y:204,type:'file'},
+];
+
+function renderDesktop(){
+  const da=document.getElementById('deskarea');
+  da.innerHTML='';
+  
+  desktopIcons.forEach((icon,i)=>{
+    const d=document.createElement('div');
+    d.className='di';
+    d.style.cssText=`top:${icon.y}px;left:${icon.x}px;`;
+    d.dataset.iconId=icon.id;
+    d.dataset.iconIndex=i;
+    
+    // Seçili ise belirginleştir
+    if(selectedIcons.has(i)){
+      d.classList.add('selected');
+    }
+    
+    // .ico dosyasini göster
+    d.innerHTML=`<div class="ico-custom"><img src="${icon.ico}" style="width:32px;height:32px;border-radius:6px;" onerror="this.style.display='none';this.parentElement.innerHTML='?';" /></div><span>${icon.label}</span>`;
+    
+    // Çoklu seçim ve sürükleme özellikleri
+    d.onmousedown=(e)=>startIconDrag(e,i);
+    d.oncontextmenu=(e)=>handleIconRightClick(e,i);
+    
+    // Çift tıklama olayı - uygulamayı aç
+    d.addEventListener('dblclick', (e) => {
+      console.log('Double clicked on icon:', icon.id);
+      e.preventDefault();
+      e.stopPropagation();
+      openApp(icon.id);
+    });
+    
+    da.appendChild(d);
+  });
+}
+
+// Ikon sürükleme sistemi
+let iconDragSt=null;
+function startIconDrag(e,index){
+  // Sadece sol tık ile sürükleme başlat
+  if(e.button!==0) return;
+  
+  // Çift tıklama kontrolü - son çift tıklamadan önceki tıklamayı görmezden gel
+  const now = Date.now();
+  if(!this.lastClickTime) this.lastClickTime = 0;
+  if(now - this.lastClickTime < 300) return; // 300ms içindeki tıklamaları görmezden gel
+  this.lastClickTime = now;
+  
+  const icon=desktopIcons[index];
+  const da=document.getElementById('deskarea');
+  const rect=da.getBoundingClientRect();
+  
+  // Eğer bu ikon seçili değilse ve Ctrl basılı değilse tek seçim yap
+  if(!e.ctrlKey && !selectedIcons.has(index)){
+    selectedIcons.clear();
+    selectedIcons.add(index);
+  }
+  
+  iconDragSt={
+    index:index,
+    offsetX:e.clientX-rect.left-icon.x,
+    offsetY:e.clientY-rect.top-icon.y,
+    startX:icon.x,
+    startY:icon.y
+  };
+  
+  renderDesktop();
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+// Çoklu seçim fonksiyonları
+function toggleIconSelection(index){
+  if(selectedIcons.has(index)){
+    selectedIcons.delete(index);
+  } else {
+    selectedIcons.add(index);
+  }
+  renderDesktop();
+}
+
+function handleIconRightClick(e,index){
+  e.preventDefault();
+  e.stopPropagation();
+  
+  if(!e.ctrlKey && !selectedIcons.has(index)){
+    selectedIcons.clear();
+    selectedIcons.add(index);
+  } else if(e.ctrlKey){
+    toggleIconSelection(index);
+  }
+  
+  renderDesktop();
+  // Context menüyü göster
+  showContextMenu(e.clientX, e.clientY);
+}
+
+function clearIconSelection(){
+  selectedIcons.clear();
+  renderDesktop();
+}
+
+document.addEventListener('mousemove',e=>{
+  if(iconDragSt){
+    const da=document.getElementById('deskarea');
+    const rect=da.getBoundingClientRect();
+    
+    let newX=e.clientX-rect.left-iconDragSt.offsetX;
+    let newY=e.clientY-rect.top-iconDragSt.offsetY;
+    
+    // Sinirlar içinde tut
+    newX=Math.max(0,Math.min(newX,rect.width-80));
+    newY=Math.max(0,Math.min(newY,rect.height-80));
+    
+    // Izgara hizalamasi (16px grid)
+    newX=Math.round(newX/16)*16;
+    newY=Math.round(newY/16)*16;
+    
+    // Ikonu güncelle
+    desktopIcons[iconDragSt.index].x=newX;
+    desktopIcons[iconDragSt.index].y=newY;
+    
+    // DOM'u güncelle
+    const iconEl=da.querySelector(`[data-icon-index="${iconDragSt.index}"]`);
+    if(iconEl){
+      iconEl.style.left=newX+'px';
+      iconEl.style.top=newY+'px';
+    }
+  }
+});
+
+document.addEventListener('mouseup',()=>{
+  if(iconDragSt){
+    iconDragSt=null;
+    showNotif('Masaüstü','Ikon konumu güncellendi');
+  }
+});
+
+// Masaüstüne tıklandığında seçimleri temizle
+document.getElementById('desktop').addEventListener('click',function(e){
+  if(e.target.id === 'desktop' || e.target.id === 'deskarea'){
+    clearIconSelection();
+  }
+});
+
+// Klavye kısayolları
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey && e.key === 'a' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA'){
+    e.preventDefault();
+    // Tüm ikonları seç
+    selectedIcons.clear();
+    desktopIcons.forEach((icon,i) => selectedIcons.add(i));
+    renderDesktop();
+  }
+  
+  if(e.key === 'Escape'){
+    clearIconSelection();
+  }
+});
+
+// ===== LOGIN =====
+let savedUsername = localStorage.getItem('orb1os_username') || '';
+let savedPassword = localStorage.getItem('orb1os_password') || '';
+
+function checkFirstTime(){
+  if (!savedUsername || !savedPassword) {
+    // Ilk kurulum - kullanici ayarlama ekranini göster
+    showSetupScreen();
+  } else {
+    // Mevcut kullanici - giris ekranini göster
+    showLoginScreen();
+  }
+}
+
+function showSetupScreen(){
+  document.getElementById('login-screen').innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;">🚀</div>
+      <div style="font-size:32px;font-weight:700;color:#fff;margin-bottom:30px;font-family:var(--display);">orb1OS - Kurulum</div>
+      <div style="color:var(--text2);font-size:16px;margin-bottom:30px;">Hoş geldiniz! Lütfen kullanici bilgilerinizi ayarlayin.</div>
+      <div style="display:flex;flex-direction:column;gap:15px;width:320px;">
+        <input id="setup-username" type="text" placeholder="Kullanici adi" value="${savedUsername}" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+        <input id="setup-password" type="password" placeholder="sifre" value="${savedPassword}" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+        <input id="setup-confirm" type="password" placeholder="sifre (tekrar)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+          <input type="checkbox" id="remember-me" checked style="width:16px;height:16px;" />
+          <label for="remember-me" style="color:#fff;font-size:13px;">?ifreyi hat?rla</label>
+        </div>
+        <button onclick="saveUserSettings()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;padding:12px;border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;">Kaydet ve Baslat</button>
+      </div>
+    </div>
+  `;
+}
+
+function showLoginScreen(){
+  document.getElementById('login-screen').innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;">?</div>
+      <div style="font-size:32px;font-weight:700;color:#fff;margin-bottom:30px;font-family:var(--display);">orb1OS</div>
+      <div style="color:var(--text2);font-size:14px;margin-bottom:20px;">Hosgeldin, ${savedUsername}!</div>
+      <div style="display:flex;flex-direction:column;gap:15px;width:300px;">
+        <input id="username" type="text" placeholder="Kullanici adi" value="${savedUsername}" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+        <input id="password" type="password" placeholder="sifre" style="background:rgba(255,255,255,0.1);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:12px;border-radius:8px;font-size:14px;outline:none;" />
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+          <input type="checkbox" id="remember-me" checked style="width:16px;height:16px;" />
+          <label for="remember-me" style="color:#fff;font-size:13px;">?ifreyi hat?rla</label>
+        </div>
+        <button onclick="doLogin()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;padding:12px;border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;">Giris Yap</button>
+        <button onclick="showSetupScreen()" style="background:transparent;border:1px solid rgba(124,111,255,0.3);color:#fff;padding:8px;border-radius:6px;cursor:pointer;font-size:12px;">Kullanici Ayarlari</button>
+      </div>
+    </div>
+  `;
+}
+
+function saveUserSettings(){
+  const username = document.getElementById('setup-username').value.trim();
+  const password = document.getElementById('setup-password').value;
+  const confirm = document.getElementById('setup-confirm').value;
+  const remember = document.getElementById('remember-me').checked;
+  
+  if (!username) {
+    alert('Lütfen kullanici adi girin!');
+    return;
+  }
+  
+  if (password !== confirm) {
+    alert('Sifreler eslesmiyor!');
+    return;
+  }
+  
+  if (remember) {
+    localStorage.setItem('orb1os_username', username);
+    localStorage.setItem('orb1os_password', password);
+  } else {
+    localStorage.removeItem('orb1os_username');
+    localStorage.removeItem('orb1os_password');
+  }
+  
+  savedUsername = username;
+  savedPassword = password;
+  
+  currentUser = {name: username, avatar: '?'};
+  
+  // Giri? yap
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('os').style.display='flex';
+  document.getElementById('sm-uav').textContent=currentUser.avatar;
+  document.getElementById('sm-uname').textContent=currentUser.name;
+  initOS();
+}
+
+function doLogin(){
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember-me').checked;
+  
+  if (username !== savedUsername || password !== savedPassword) {
+    alert('Kullanici adi veya sifre hatali!');  
+    return;
+  }
+  
+  if (remember) {
+    localStorage.setItem('orb1os_username', username);
+    localStorage.setItem('orb1os_password', password);
+  } else {
+    localStorage.removeItem('orb1os_username');
+    localStorage.removeItem('orb1os_password');
+  }
+  
+  currentUser = {name: username, avatar: '?'};
+  
+  // Giri? ba?arili - OS'i göster
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('os').style.display='flex';
+  document.getElementById('sm-uav').textContent=currentUser.avatar;
+  document.getElementById('sm-uname').textContent=currentUser.name;
+  initOS();
+}
+
+// Sayfa yüklendi?inde kontrol et
+window.addEventListener('DOMContentLoaded', function() {
+  checkFirstTime();
+});
+
+// ===== OS INIT =====
+function initOS(){
+  loadLocalIcons();
+  renderDesktop();
+  drawWallpaper();
+  updateClock();
+  setTimeout(()=>{
+    tLine(`<span class="t-sys">orb1OS Terminal v3.0</span>`);
+    tLine(`<span class="t-dim">Hoş geldiniz, ${currentUser.name}! "help" yazın.</span>`);
+    tLine('');
+  },0);
+  showNotif('orb1OS','Hoş geldiniz, '+currentUser.name+'! ?',4000);
+  renderIconEditor();
+}
+
+// ===== LOCAL ICON LOADER =====
+function loadLocalIcons(){
+  localIcons=[];
+  
+  // Klasördeki .ico dosyalarini kontrol et
+  const iconFiles = [
+    'chrome.ico', 'firefox.ico', 'vscode.ico', 'discord.ico', 'steam.ico',
+    'spotify.ico', 'telegram.ico', 'github.ico', 'notepad.ico', 'calculator.ico',
+    'folder.ico', 'game.ico', 'app.ico', 'program.ico', 'tool.ico'
+  ];
+  
+  // Her dosyayi kontrol et ve varsa listeye ekle
+  iconFiles.forEach(filename => {
+    const img = new Image();
+    img.onload = function() {
+      const name = filename.replace('.ico', '').charAt(0).toUpperCase() + filename.replace('.ico', '').slice(1);
+      localIcons.push({
+        name: name,
+        filename: filename
+      });
+      // Masaüstünü yenile
+      if(localIcons.length === 1) { // Ilk bulunan dosyada
+        renderDesktop();
+      }
+    };
+    img.onerror = function() {
+      // Dosya bulunamadi, atla
+    };
+    img.src = filename;
+  });
+}
+
+// ===== CLOCK =====
+function updateClock(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+  document.getElementById('date').textContent=d.toLocaleDateString('tr-TR',{day:'2-digit',month:'short'});
+  const lt=document.getElementById('lock-time');
+  const ld=document.getElementById('lock-date');
+  if(lt)lt.textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+  if(ld)ld.textContent=d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
+}
+setInterval(updateClock,1000);
+
+// ===== WALLPAPER =====
+function drawWallpaper(){
+  const c=document.getElementById('wallpaper');
+  if(!c)return;
+  const os=document.getElementById('os');
+  c.width=os.offsetWidth;c.height=os.offsetHeight;
+  const cx=c.getContext('2d');
+  // gradient bg via css trick - draw gradient
+  const grd=cx.createRadialGradient(c.width*0.3,c.height*0.5,0,c.width*0.5,c.height*0.5,c.width);
+  const wps=[
+    ['#0d0a2e','#07071a'],['#0a2e0d','#07071a'],['#2e0a0d','#07071a'],
+    ['#0a1229','#07071a'],['#1a150a','#07071a'],['#0d1a2e','#1a0720']
+  ];
+  const wp=wps[wpIdx];
+  grd.addColorStop(0,wp[0]);grd.addColorStop(1,wp[1]);
+  cx.fillStyle=grd;cx.fillRect(0,0,c.width,c.height);
+  // stars
+  for(let i=0;i<120;i++){
+    cx.beginPath();
+    cx.arc(Math.random()*c.width,Math.random()*c.height,Math.random()*1.8,0,Math.PI*2);
+    cx.fillStyle='rgba(255,255,255,'+(Math.random()*0.5+0.05)+')';
+    cx.fill();
+  }
+  // subtle grid lines
+  cx.strokeStyle='rgba(124,111,255,0.04)';cx.lineWidth=1;
+  for(let x=0;x<c.width;x+=60){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,c.height);cx.stroke();}
+  for(let y=0;y<c.height;y+=60){cx.beginPath();cx.moveTo(0,y);cx.lineTo(c.width,y);cx.stroke();}
+}
+function changeWallpaper(){wpIdx=(wpIdx+1)%6;drawWallpaper();showNotif('Duvar Kağıdı','Arka plan değiştirildi!');}
+window.addEventListener('resize',drawWallpaper);
+
+// ===== NOTIFICATIONS =====
+function showNotif(title,body,dur=3000){
+  const a=document.getElementById('notif-area');
+  const n=document.createElement('div');
+  n.className='notif';
+  n.innerHTML=`<div class="notif-title">${title}</div><div class="notif-body">${body}</div>`;
+  a.appendChild(n);
+  setTimeout(()=>{n.style.transition='opacity 0.3s,transform 0.3s';n.style.opacity='0';n.style.transform='translateX(40px)';setTimeout(()=>n.remove(),300);},dur);
+}
+
+// ===== WINDOW MANAGEMENT =====
+function openApp(name){
+  console.log('openApp called with:', name);
+  const w=document.getElementById('win-'+name);
+  if(!w){
+    console.error('Window not found: win-'+name);
+    return;
+  }
+  console.log('Found window:', w);
+  w.classList.remove('hidden');
+  zTop+=2;w.style.zIndex=zTop;
+  openW[name]=true;
+  focusWin(name);
+  updateTB();
+  console.log('App opened successfully:', name);
+  if(name==='terminal'&&document.getElementById('term-out').innerHTML===''){
+    tLine(`<span class="t-sys">orb1OS Terminal v3.0</span>`);
+    tLine(`<span class="t-dim">Hoş geldiniz, ${currentUser.name}! "help" yazın.</span>`);
+    tLine('');
+  }
+  if(name==='files')fNav('home');
+  if(name==='settings')sSection('wallpaper');
+  if(name==='paint'){
+    setTimeout(()=>{
+      if(typeof initPaint === 'function'){
+        initPaint();
+      }
+    },100);
+  }
+  if(name==='iconeditor')renderIconEditor();
+  if(name==='shutdown'){
+    const el=document.getElementById('win-shutdown');
+    const os=document.getElementById('os');
+    el.style.left=(os.offsetWidth/2-140)+'px';
+    el.style.top=(os.offsetHeight/2-85)+'px';
+    el.style.transform='none';
+  }
+  setTimeout(()=>document.getElementById('term-inp')&&name==='terminal'&&document.getElementById('term-inp').focus(),100);
+}
+function closeApp(name){
+  const w=document.getElementById('win-'+name);
+  if(w)w.classList.add('hidden');
+  delete openW[name];
+  updateTB();
+}
+function minApp(name){
+  const w=document.getElementById('win-'+name);
+  if(w){
+    w.classList.add('hidden');
+    // Uygulama minimize durumunda kalsin, taskbar'da görünsün
+    openW[name] = true;
+    updateTB();
+  }
+}
+function maxApp(id){
+  const w=document.getElementById(id);
+  const os=document.getElementById('os');
+  if(w._maximized){
+    w.style.left=w._px;w.style.top=w._py;w.style.width=w._pw;w.style.height=w._ph;
+    w._maximized=false;
+  } else {
+    w._px=w.style.left;w._py=w.style.top;w._pw=w.style.width;w._ph=w.style.height;
+    w.style.left='0';w.style.top='0';
+    w.style.width=os.offsetWidth+'px';w.style.height=(os.offsetHeight-48)+'px';
+    w._maximized=true;
+  }
+}
+function focusWin(name){
+  document.querySelectorAll('.win').forEach(w=>w.classList.remove('focused'));
+  const w=document.getElementById('win-'+name);
+  if(w)w.classList.add('focused');
+}
+function updateTB(){
+  const tb=document.getElementById('tb-apps');
+  tb.innerHTML='';
+  const labels={
+    browser:'<img src="browser.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Tarayici',
+    files:'<img src="files.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Dosyalar',
+    editor:'<img src="editor.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Not Defteri',
+    calc:'<img src="calc.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Hesap',
+    terminal:'<img src="terminal.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Terminal',
+    music:'<img src="music.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Müzik',
+    paint:'<img src="paint.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Paint',
+    weather:'<img src="weather.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Hava',
+    iconeditor:'<img src="iconeditor.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Simgeler',
+    settings:'<img src="settings.ico" style="width:12px;height:12px;border-radius:2px;vertical-align:middle;margin-right:4px;" onerror="this.style.display=\'none\';" />Ayarlar',
+    shutdown:'? Kapat'
+  };
+  for(const n in openW){
+    const b=document.createElement('button');
+    b.className='tb-btn active';
+    b.innerHTML=labels[n]||n;
+    b.onclick=()=>{
+  const w=document.getElementById('win-'+n);
+  if(w){
+    if(w.classList.contains('hidden')){
+      // Minimize durumundan geri aç
+      w.classList.remove('hidden');
+      zTop+=2;w.style.zIndex=zTop;
+      focusWin(n);
+    } else {
+      // Açik ise minimize et
+      w.classList.add('hidden');
+    }
+  }
+};
+    tb.appendChild(b);
+  }
+}
+function toggleStart(){document.getElementById('start-menu').classList.toggle('open');}
+function closeStart(){document.getElementById('start-menu').classList.remove('open');}
+
+// ===== DRAG =====
+function startDrag(id,e){
+  const w=document.getElementById(id);
+  focusWin(id.replace('win-',''));
+  zTop+=2;w.style.zIndex=zTop;
+  const r=w.getBoundingClientRect();
+  const pr=document.getElementById('desktop').getBoundingClientRect();
+  dragSt={el:w,ox:e.clientX-(r.left-pr.left),oy:e.clientY-(r.top-pr.top)};
+}
+function startResize(id,e){
+  e.stopPropagation();
+  const w=document.getElementById(id);
+  const r=w.getBoundingClientRect();
+  resizeSt={el:w,startW:r.width,startH:r.height,startX:e.clientX,startY:e.clientY};
+}
+document.addEventListener('mousemove',e=>{
+  if(dragSt){
+    const pr=document.getElementById('desktop').getBoundingClientRect();
+    let nx=e.clientX-pr.left-dragSt.ox;
+    let ny=e.clientY-pr.top-dragSt.oy;
+    nx=Math.max(0,Math.min(nx,pr.width-50));
+    ny=Math.max(0,Math.min(ny,pr.height-30));
+    dragSt.el.style.left=nx+'px';dragSt.el.style.top=ny+'px';
+  }
+  if(resizeSt){
+    const nw=Math.max(280,resizeSt.startW+e.clientX-resizeSt.startX);
+    const nh=Math.max(180,resizeSt.startH+e.clientY-resizeSt.startY);
+    resizeSt.el.style.width=nw+'px';resizeSt.el.style.height=nh+'px';
+  }
+});
+document.addEventListener('mouseup',()=>{dragSt=null;resizeSt=null;});
+
+// ===== CONTEXT MENU =====
+document.getElementById('deskarea').addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const m=document.getElementById('ctx-menu');
+  const pr=document.getElementById('desktop').getBoundingClientRect();
+  m.style.left=(e.clientX-pr.left)+'px';m.style.top=(e.clientY-pr.top)+'px';
+  m.classList.add('open');
+});
+document.getElementById('deskarea').addEventListener('mousedown',e=>{
+  if(e.button===0){closeCtx();closeStart();}
+});
+function closeCtx(){document.getElementById('ctx-menu').classList.remove('open');}
+
+// ===== BROWSER =====
+function bGo(){
+  let u=document.getElementById('url-bar').value.trim();
+  if(!u)u='https://www.google.com';
+  if(!u.startsWith('http'))u='https://'+u;
+  document.getElementById('bframe').src=u;
+  showNotif('Tarayici',u+' yükleniyor...');
+}
+function bNav(d){try{d<0?document.getElementById('bframe').contentWindow.history.back():document.getElementById('bframe').contentWindow.history.forward();}catch(e){showNotif('Tarayici','Geri/ileri hareket edilemiyor');}}
+function bRefresh(){try{document.getElementById('bframe').contentWindow.location.reload();}catch(e){const url=document.getElementById('url-bar').value;document.getElementById('bframe').src=url;showNotif('Tarayici','Sayfa yenileniyor');}}
+
+// Hizli eri?im dügmeleri
+function quickGoogle(){document.getElementById('url-bar').value='https://www.google.com';bGo();}
+function quickYouTube(){document.getElementById('url-bar').value='https://www.youtube.com';bGo();}
+function quickGmail(){document.getElementById('url-bar').value='https://mail.google.com';bGo();}
+
+// ===== FILES =====
+const fFolders={
+  home:[{n:'Belgeler',i:'📄'},{n:'Resimler',i:'🖼'},{n:'Müzik',i:'🎵'},{n:'Videolar',i:'🎬'},{n:'İndirilenler',i:'💾'},{n:'Masaüstü',i:'🖥'},{n:'Projeler',i:'🗂'},{n:'Arşiv',i:'📦'}],
+  docs:[{n:'Özgeçmiş.docx',i:'📝'},{n:'Proje.pdf',i:'📕'},{n:'Notlar.txt',i:'📄'},{n:'Rapor.xlsx',i:'📊'},{n:'Sunum.pptx',i:'📊'}],
+  pics:[{n:'Tatil.jpg',i:'🖼'},{n:'Profil.png',i:'🖼'},{n:'Ekran.png',i:'🖼'},{n:'Logo.svg',i:'🎨'}],
+  music:[{n:'Cosmic Waves.mp3',i:'🎵'},{n:'Neon Dreams.mp3',i:'🎵'},{n:'Digital Horizon.mp3',i:'🎵'}],
+  videos:[{n:'Demo.mp4',i:'🎬'},{n:'Sunum.avi',i:'🎬'}],
+  downloads:[{n:'setup.exe',i:'📦'},{n:'image.iso',i:'💿'},{n:'data.zip',i:'🗜'}],
+  trash:[{n:'eski_dosya.tmp',i:'🗑'},{n:'çöp.txt',i:'🗑'}]
+};
+function fNav(key){
+  const grid=document.getElementById('f-grid');
+  const path=document.getElementById('f-path');
+  const names={home:'Ana Klasör',docs:'Belgeler',pics:'Resimler',music:'Müzik',videos:'Videolar',downloads:'İndirilenler',trash:'Çöp Kutusu'};
+  path.textContent='~/'+names[key];
+  grid.innerHTML='';
+  (fFolders[key]||[]).forEach(f=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 6px;border-radius:8px;width:70px;transition:background 0.1s;';
+    d.innerHTML=`<div style="font-size:26px;">${f.i}</div><span style="font-size:10px;text-align:center;color:rgba(255,255,255,0.75);word-break:break-all;font-family:var(--font);">${f.n}</span>`;
+    d.onmouseover=()=>d.style.background='rgba(124,111,255,0.15)';
+    d.onmouseout=()=>d.style.background='transparent';
+    d.ondblclick=()=>showNotif('Dosya Yöneticisi',f.n+' açıldı');
+    grid.appendChild(d);
+  });
+}
+
+// ===== EDITOR =====
+function eFormat(){
+  const fonts={'Sans-Serif':'var(--font)','Monospace':'var(--mono)','Serif':'Georgia,serif'};
+  const f=document.getElementById('e-font').value;
+  const s=document.getElementById('e-size').value;
+  const ea=document.getElementById('editor-area');
+  ea.style.fontFamily=fonts[f];ea.style.fontSize=s+'px';
+}
+function eSave(){
+  const t=document.getElementById('editor-area').innerText;
+  showNotif('Not Defteri','Kaydedildi! ('+t.length+' karakter)');
+}
+document.getElementById('editor-area').addEventListener('input',function(){
+  const words=this.innerText.trim().split(/\s+/).filter(w=>w).length;
+  document.getElementById('e-status').textContent=words+' kelime · '+this.innerText.length+' karakter';
+});
+
+// ===== CALC =====
+function c(v){
+  const d=document.getElementById('c-disp');
+  const h=document.getElementById('c-hist');
+  if(v==='C'){cVal='';cOp='';cPrev='';cNew=true;d.textContent='0';h.textContent='';return;}
+  if(v==='+/-'){cVal=(parseFloat(cVal||0)*-1).toString();d.textContent=cVal;return;}
+  if(v==='%'){cVal=(parseFloat(cVal||0)/100).toString();d.textContent=cVal;return;}
+  if(v==='sqrt'){cVal=Math.sqrt(parseFloat(cVal||0)).toFixed(8).replace(/\.?0+$/,'');d.textContent=cVal;return;}
+  if(['+','-','*','/'].includes(v)){if(cVal!=='')cPrev=cVal;cOp=v;cVal='';h.textContent=cPrev+' '+v;return;}
+  if(v==='='){
+    if(cPrev===''||cOp==='')return;
+    const a=parseFloat(cPrev),b=parseFloat(cVal||cPrev);
+    let r;
+    if(cOp==='+')r=a+b;if(cOp==='-')r=a-b;if(cOp==='*')r=a*b;if(cOp==='/')r=b!==0?a/b:Infinity;
+    const res=isFinite(r)?parseFloat(r.toFixed(10)).toString():'Hata';
+    h.textContent=cPrev+' '+cOp+' '+(cVal||cPrev)+' =';
+    d.textContent=res;cPrev=res;cVal='';cOp='';cNew=true;return;
+  }
+  if(v==='.'&&cVal.includes('.'))return;
+  cVal=cNew&&v!='.'?v:cVal+v;cNew=false;d.textContent=cVal;
+}
+
+// ===== TERMINAL =====
+function tLine(html){
+  const o=document.getElementById('term-out');
+  if(!o)return;
+  const d=document.createElement('div');
+  d.innerHTML=html;
+  o.appendChild(d);
+  o.scrollTop=o.scrollHeight;
+}
+function tPrint(html){tLine(html);}
+
+const termFS={
+  '~':{type:'dir',children:{'Belgeler':{type:'dir',children:{}},'Resimler':{type:'dir',children:{}},'Müzik':{type:'dir',children:{}},'orb1.txt':{type:'file',content:'orb1OS v3.0 - orb1 işletim sistemi\n'}}},
+};
+function getFSNode(path){
+  if(path==='~')return termFS['~'];
+  const parts=path.replace(/^~\/?/,'').split('/').filter(Boolean);
+  let node=termFS['~'];
+  for(const p of parts){node=node?.children?.[p];if(!node)return null;}
+  return node;
+}
+
+function termKey(e){
+  if(e.key==='Enter'){
+    const inp=document.getElementById('term-inp');
+    const cmd=inp.value.trim();inp.value='';
+    if(!cmd)return;
+    termHist.unshift(cmd);termPos=0;
+    tLine(`<span class="t-dim">${currentUser.name}@orb1:${termCwd}$</span> <span class="t-prompt">${escHtml(cmd)}</span>`);
+    execCmd(cmd);
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    if(termPos<termHist.length){termPos++;document.getElementById('term-inp').value=termHist[termPos-1]||'';}
+  } else if(e.key==='ArrowDown'){
+    e.preventDefault();termPos=Math.max(0,termPos-1);
+    document.getElementById('term-inp').value=termPos>0?termHist[termPos-1]:'';
+  } else if(e.key==='Tab'){
+    e.preventDefault();
+    const inp=document.getElementById('term-inp');
+    const cmds=['help','clear','date','echo','sysinfo','ls','ls -la','pwd','whoami','ver','uptime','cal','neofetch','weather','open','cd','mkdir','cat','history','ps','kill','ping','curl','wget','top','df','du','free','uname','hostname','env','export','alias','chmod','chown','grep','find','man','sudo','apt','pip','npm','git','python','node','bash','sh'];
+    const matches=cmds.filter(c=>c.startsWith(inp.value));
+    if(matches.length===1)inp.value=matches[0];
+    else if(matches.length>1)tLine('<span class="t-info">'+matches.join('  ')+'</span>');
+  } else if(e.key==='c'&&e.ctrlKey){
+    e.preventDefault();
+    tLine('<span class="t-err">^C</span>');
+    document.getElementById('term-inp').value='';
+  } else if(e.key==='l'&&e.ctrlKey){
+    e.preventDefault();
+    document.getElementById('term-out').innerHTML='';
+  }
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function execCmd(cmd){
+  const parts=cmd.trim().split(/\s+/);
+  const lo=cmd.toLowerCase().trim();
+  const bin=parts[0].toLowerCase();
+  const args=parts.slice(1);
+
+  if(lo==='help'){
+    tLine(`<span class="t-info">╔══════════════ orb1OS Terminali ══════════════╗</span>`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Sistem:</span>     sysinfo, neofetch, uname, hostname`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Dosya:</span>      ls, ls -la, cd, pwd, mkdir, cat, find`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Bilgi:</span>      date, uptime, cal, whoami, ver, env`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Ağ:</span>         ping, curl, wget, weather`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Süreç:</span>      ps, top, kill, df, du, free`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Diğer:</span>      echo, history, clear, open, alias`);
+    tLine(`<span class="t-info">║</span> <span class="t-ok">Kısayol:</span>    Tab=otomatik tam, ↑↓=geçmiş, Ctrl+C=iptal`);
+    tLine(`<span class="t-info">╚═══════════════════════════════════════════════╝</span>`);
+  }
+  else if(lo==='clear'||lo==='cls'){document.getElementById('term-out').innerHTML='';}
+  else if(lo==='date')tLine(new Date().toLocaleString('tr-TR',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}));
+  else if(lo==='ver'||lo==='version')tLine('<span class="t-ok">orb1OS v3.0.0</span> (web-kernel-3.0, build 2025.04)');
+  else if(lo==='uptime')tLine(`Çalışma süresi: <span class="t-ok">${Math.floor(performance.now()/1000)}</span> saniye`);
+  else if(lo==='whoami')tLine(`<span class="t-ok">${currentUser.name.toLowerCase().replace(' ','_')}</span>`);
+  else if(lo==='hostname')tLine('<span class="t-ok">orb1-pc</span>');
+  else if(lo==='pwd')tLine(`<span class="t-ok">/home/${currentUser.name.toLowerCase().replace(' ','_')}/${termCwd.replace('~','')}</span>`);
+  else if(lo==='ls'||lo==='ls -la'||lo==='ll'||lo==='ls -l'){
+    const node=getFSNode(termCwd);
+    if(node&&node.type==='dir'){
+      const isLong=lo.includes('-l')||lo.includes('-a');
+      const entries=Object.keys(node.children);
+      if(isLong){
+        tLine(`<span class="t-dim">toplam ${entries.length}</span>`);
+        entries.forEach(e=>{
+          const n=node.children[e];
+          const isDir=n.type==='dir';
+          tLine(`<span class="t-info">${isDir?'drwxr-xr-x':'-rw-r--r--'}</span>  1 ${currentUser.name.toLowerCase()}  orb1  ${isDir?'4096':Math.floor(Math.random()*9999+100)}  <span class="${isDir?'t-ok':'t-prompt'}">${e}${isDir?'/':''}</span>`);
+        });
+      } else {
+        const cols=entries.map(e=>{const isDir=node.children[e].type==='dir';return`<span class="${isDir?'t-ok':'t-prompt'}">${e}${isDir?'/':''}</span>`;});
+        for(let i=0;i<cols.length;i+=4)tLine(cols.slice(i,i+4).join('  '));
+      }
+    } else tLine(`<span class="t-err">ls: '${termCwd}': dizin bulunamadı</span>`);
+  }
+  else if(bin==='cd'){
+    const target=args[0]||'~';
+    if(target==='~'||target===''){termCwd='~';document.getElementById('term-cwd').textContent='~';}
+    else if(target==='..'){}
+    else {
+      const node=getFSNode(termCwd);
+      if(node&&node.children&&node.children[target]&&node.children[target].type==='dir'){
+        termCwd=termCwd==='~'?'~/'+target:termCwd+'/'+target;
+        document.getElementById('term-cwd').textContent=termCwd;
+      } else tLine(`<span class="t-err">cd: '${target}': dizin bulunamadı</span>`);
+    }
+  }
+  else if(bin==='mkdir'){
+    if(!args[0])tLine(`<span class="t-err">mkdir: dizin adı gerekli</span>`);
+    else {const n=getFSNode(termCwd);if(n&&n.children){n.children[args[0]]={type:'dir',children:{}};tLine(`<span class="t-ok">Dizin oluşturuldu: ${args[0]}</span>`);}};
+  }
+  else if(bin==='cat'){
+    if(!args[0])tLine(`<span class="t-err">cat: dosya adı gerekli</span>`);
+    else {const node=getFSNode(termCwd);const f=node?.children?.[args[0]];if(f&&f.type==='file')tLine(escHtml(f.content));else tLine(`<span class="t-err">cat: '${args[0]}': dosya bulunamadı</span>`);}
+  }
+  else if(lo==='sysinfo'||lo==='neofetch'){
+    const nf=[
+      ``,`         <span class="t-info">██████</span>   <span class="t-ok">${currentUser.name}@orb1-pc</span>`,
+      `        <span class="t-info">██████</span>   <span class="t-dim">──────────────────</span>`,
+      `       <span class="t-info">██████</span>   <span class="t-warn">OS:</span>      orb1OS v3.0.0`,
+      `      <span class="t-info">██████</span>   <span class="t-warn">Kernel:</span>  web-kernel-3.0`,
+      `     <span class="t-info">██████</span>   <span class="t-warn">Shell:</span>   orb1sh v3.0`,
+      `    <span class="t-info">██████</span>   <span class="t-warn">CPU:</span>     orb1 Core i9 (8 çekirdek)`,
+      `   <span class="t-info">██████</span>   <span class="t-warn">RAM:</span>     32 GB / 32 GB`,
+      `  <span class="t-info">██████</span>   <span class="t-warn">Disk:</span>    42 GB / 128 GB SSD`,
+      `         <span class="t-warn">GPU:</span>     orb1 RTX 9090`,
+      `         <span class="t-warn">Tarayıcı:</span>${navigator.userAgent.split('/').pop().trim()}`,
+      `         <span class="t-warn">Ekran:</span>   ${window.screen.width}×${window.screen.height}`,
+      `         <span class="t-warn">Kullanıcı:</span>${currentUser.avatar} ${currentUser.name}`,``
+    ];
+    nf.forEach(l=>tLine(l));
+  }
+  else if(lo==='ps'||lo==='ps aux'){
+    tLine(`<span class="t-dim">PID  KULLANICI    CPU   BELLEK  KOMUT</span>`);
+    const procs=[['1','root','0.0','0.1','init'],['2','root','0.0','0.0','kthread'],['100',currentUser.name.toLowerCase(),'0.1','1.2','orb1-shell'],['200',currentUser.name.toLowerCase(),'0.5','2.4','orb1-wm'],['201',currentUser.name.toLowerCase(),'0.2','0.8','orb1-taskbar'],['300',currentUser.name.toLowerCase(),'0.0','0.5','terminal'],['400',currentUser.name.toLowerCase(),'0.0','3.2','browser']];
+    procs.forEach(p=>tLine(`<span class="t-ok">${p[0].padStart(4)}</span>  <span class="t-info">${p[1].padEnd(12)}</span>${p[2].padStart(5)}%  ${p[3].padStart(6)}%  <span class="t-prompt">${p[4]}</span>`));
+  }
+  else if(lo==='top'){
+    tLine(`<span class="t-warn">top - ${new Date().toLocaleTimeString('tr-TR')}</span> çalışma süresi: ${Math.floor(performance.now()/1000)}s`);
+    tLine(`Görevler: <span class="t-ok">7</span> toplam, <span class="t-ok">1</span> çalışıyor, <span class="t-info">6</span> uyuyor`);
+    tLine(`CPU: <span class="t-ok">2.3%</span> kullanıcı  0.8% sistem  <span class="t-dim">96.9% boş</span>`);
+    tLine(`Bellek: <span class="t-ok">32768 MB</span> toplam  <span class="t-warn">8234 MB</span> kullanılan  <span class="t-ok">24534 MB</span> boş`);
+  }
+  else if(lo==='df'||lo==='df -h'){
+    tLine(`<span class="t-dim">Dosya Sistemi   Boyut  Kullanılan  Kullanılabilir  Kullanım  Bağlantı</span>`);
+    tLine(`<span class="t-ok">orb1fs</span>          128G    42G         86G             33%       /`);
+    tLine(`<span class="t-info">tmpfs</span>          16G     0G          16G             0%        /tmp`);
+  }
+  else if(lo==='free'||lo==='free -h'){
+    tLine(`<span class="t-dim">              toplam  kullanılan    boş   paylaşılan   arabellek</span>`);
+    tLine(`<span class="t-ok">Bellek:</span>       32G      8.2G      23.8G       1.2G        4.1G`);
+    tLine(`<span class="t-info">Takas:</span>         4G        0B         4G`);
+  }
+  else if(lo==='uname'||lo==='uname -a')tLine('<span class="t-ok">orb1OS</span> orb1-pc 3.0.0 #1 SMP orb1 web-kernel-3.0 x86_64 GNU/Linux');
+  else if(lo==='env')tLine(`<span class="t-info">HOME</span>=/home/${currentUser.name.toLowerCase()}\n<span class="t-info">USER</span>=${currentUser.name.toLowerCase()}\n<span class="t-info">SHELL</span>=/bin/orb1sh\n<span class="t-info">TERM</span>=orb1-term\n<span class="t-info">LANG</span>=tr_TR.UTF-8\n<span class="t-info">OS</span>=orb1OS v3.0.0`);
+  else if(lo==='history'){termHist.slice().reverse().forEach((h,i)=>tLine(`<span class="t-dim">${String(i+1).padStart(4)}</span>  <span class="t-prompt">${escHtml(h)}</span>`));}
+  else if(lo.startsWith('echo ')){tLine(escHtml(cmd.slice(5)));}
+  else if(lo==='weather')tLine(`<span class="t-info">Bursa:</span> <span class="t-ok">22°C</span>, Güneşli ☀️ | Nem: <span class="t-warn">%45</span> | Rüzgar: 12 km/s | UV: 6 (Yüksek)`);
+  else if(lo==='cal'){
+    const d=new Date();const m=d.getMonth();const y=d.getFullYear();
+    const months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    tLine(`<span class="t-ok">    ${months[m]} ${y}</span>`);
+    tLine(`<span class="t-dim">Pzt  Sal  Çar  Per  Cum  Cmt  Paz</span>`);
+    const first=new Date(y,m,1).getDay();
+    const days=new Date(y,m+1,0).getDate();
+    let row='     '.repeat((first+6)%7);
+    for(let i=1;i<=days;i++){
+      const s=i===d.getDate()?`<span class="t-warn">${String(i).padStart(3)}</span>`:String(i).padStart(3);
+      row+=s+'  ';
+      if((i+((first+6)%7))%7===0){tLine(row);row='';}
+    }
+    if(row.trim())tLine(row);
+  }
+  else if(bin==='ping'){
+    const host=args[0]||'google.com';
+    tLine(`PING <span class="t-ok">${escHtml(host)}</span>`);
+    for(let i=0;i<4;i++)tLine(`64 bytes from <span class="t-info">${escHtml(host)}</span>: icmp_seq=${i+1} ttl=64 time=<span class="t-ok">${(Math.random()*20+5).toFixed(1)}</span> ms`);
+    tLine(`<span class="t-dim">--- ${escHtml(host)} ping istatistiği ---</span>`);
+    tLine(`4 gönderildi, 4 alındı, <span class="t-ok">%0 kayıp</span>`);
+  }
+  else if(bin==='curl'||bin==='wget'){
+    const url=args[0]||'';
+    if(!url)tLine(`<span class="t-err">${bin}: URL gerekli</span>`);
+    else tLine(`<span class="t-ok">Simüle ediliyor:</span> ${escHtml(url)}\n<span class="t-dim">HTTP/2 200 OK</span>\nContent-Type: text/html; charset=utf-8\n<span class="t-ok">İndirme tamamlandı</span>`);
+  }
+  else if(bin==='kill'){tLine(args[0]?`<span class="t-ok">Süreç ${args[0]} sonlandırıldı.</span>`:`<span class="t-err">kill: PID gerekli</span>`);}
+  else if(bin==='find'){tLine(`<span class="t-info">Aranan:</span> <span class="t-ok">${args.join(' ')||'.'}</span>\n./Belgeler/Notlar.txt\n./Resimler/Profil.png`);}
+  else if(bin==='grep'){tLine(args.length<2?`<span class="t-err">grep: model ve dosya gerekli</span>`:`<span class="t-ok">${args[1]}:1:</span> <span class="t-prompt">örnek eşleşme - ${args[0]}</span>`);}
+  else if(bin==='man'){tLine(args[0]?`<span class="t-info">Manual: ${args[0]}</span>\n<span class="t-dim">Kullanım ve detaylar yükleniyor...</span>\n<span class="t-ok">${args[0]}</span> - orb1OS komutları. Daha fazla bilgi için web'de arayın.`:`<span class="t-err">man: komut adı gerekli</span>`);}
+  else if(bin==='alias'){tLine(`<span class="t-info">ll</span>=<span class="t-ok">'ls -la'</span>\n<span class="t-info">cls</span>=<span class="t-ok">'clear'</span>\n<span class="t-info">..=</span><span class="t-ok">'cd ..'</span>`);}
+  else if(bin==='sudo'){tLine(`<span class="t-warn">[sudo] ${currentUser.name} için parola:</span>\n<span class="t-ok">orb1OS: sudo yetkileri verildi</span>`);}
+  else if(bin==='apt'||bin==='apt-get'){tLine(`<span class="t-ok">orb1 paket yöneticisi v3.0</span>\nKomutlar: install, remove, update, upgrade, search`);}
+  else if(bin==='git'){tLine(`<span class="t-ok">git version 2.40.0</span>\nKomutlar: init, clone, add, commit, push, pull, status, log`);}
+  else if(bin==='python'||bin==='python3'){tLine(`<span class="t-ok">Python 3.11.0</span> (orb1OS web build)\n<span class="t-dim">Tip 'exit()' to quit</span>\n<span class="t-prompt">>>></span>`);}
+  else if(bin==='node'){tLine(`<span class="t-ok">Node.js v20.0.0</span> (orb1OS web build)\n<span class="t-dim">Type '.exit' to quit</span>\n<span class="t-prompt">></span>`);}
+  else if(bin==='open'||bin==='start'){const app=args[0]||'';if(app){openApp(app);tLine(`<span class="t-ok">'${app}' açılıyor...</span>`);}else tLine(`<span class="t-err">open: uygulama adı gerekli</span>`);}
+  else if(lo==='logout'||lo==='exit'){
+    tLine('<span class="t-warn">Çıkış yapılıyor...</span>');
+    setTimeout(()=>doLogout(),1000);
+  }
+  else if(lo==='reboot'||lo==='restart'){tLine('<span class="t-warn">Yeniden başlatılıyor...</span>');setTimeout(doRestart,1000);}
+  else if(lo==='shutdown'||lo==='poweroff'){tLine('<span class="t-warn">Kapatılıyor...</span>');setTimeout(doShutdown,1000);}
+  else tLine(`<span class="t-err">orb1sh: '${escHtml(parts[0])}': komut bulunamadı</span>\n<span class="t-dim">Yardım için 'help' yazın</span>`);
+}
+
+// ===== MUSIC =====
+function mLoad(){
+  document.getElementById('m-title').textContent=mSongs[mIdx].t;
+  document.getElementById('m-dur').textContent=Math.floor(mSongs[mIdx].d/60)+':'+(mSongs[mIdx].d%60).toString().padStart(2,'0');
+  document.getElementById('m-prog').value=0;document.getElementById('m-cur').textContent='0:00';
+}
+function mToggle(){
+  mPlaying=!mPlaying;
+  document.getElementById('m-play').textContent=mPlaying?'⏸':'▶';
+  if(mPlaying){
+    mDisc=0;
+    mDiscInt=setInterval(()=>{mDisc+=3;document.getElementById('disc').style.transform='rotate('+mDisc+'deg)';},50);
+    mInterval=setInterval(()=>{
+      mTime++;
+      const prog=document.getElementById('m-prog');
+      const tot=mSongs[mIdx].d;
+      prog.value=Math.round(mTime/tot*100);
+      document.getElementById('m-cur').textContent=Math.floor(mTime/60)+':'+(mTime%60).toString().padStart(2,'0');
+      if(mTime>=tot){mNext();}
+    },1000);
+  } else {clearInterval(mInterval);clearInterval(mDiscInt);}
+}
+function mNext(){clearInterval(mInterval);clearInterval(mDiscInt);mPlaying=false;mTime=0;mIdx=(mIdx+1)%mSongs.length;mLoad();mToggle();}
+function mPrev(){clearInterval(mInterval);clearInterval(mDiscInt);mPlaying=false;mTime=0;mIdx=(mIdx-1+mSongs.length)%mSongs.length;mLoad();mToggle();}
+function mSeek(v){mTime=Math.round(mSongs[mIdx].d*v/100);}
+function mShuffle(){mIdx=Math.floor(Math.random()*mSongs.length);clearInterval(mInterval);clearInterval(mDiscInt);mPlaying=false;mTime=0;mLoad();showNotif('Müzik','Karıştırıldı: '+mSongs[mIdx].t);}
+mLoad();
+
+// ===== PAINT =====
+function initPaint(){
+  const cv=document.getElementById('pt-canvas');
+  if(!cv)return;
+  cv.width=cv.offsetWidth||480;
+  cv.height=cv.offsetHeight||300;
+  ptCtx=cv.getContext('2d');
+  ptCtx.fillStyle='#fff';ptCtx.fillRect(0,0,cv.width,cv.height);
+  ptHistory=[];
+}
+function setTool(t){
+  ptTool=t;
+  document.getElementById('pt-pen').style.background=t==='pen'?'var(--accent)':'#1a1a30';
+}
+function saveHistory(){if(ptCtx){ptHistory.push(ptCtx.getImageData(0,0,document.getElementById('pt-canvas').width,document.getElementById('pt-canvas').height));if(ptHistory.length>20)ptHistory.shift();}}
+function ptDown(e){
+  ptDrawing=true;
+  if(!ptCtx)initPaint();
+  saveHistory();
+  const r=e.target.getBoundingClientRect();
+  ptLast={x:e.clientX-r.left,y:e.clientY-r.top};
+  if(ptTool==='fill'){ptFill(ptLast.x,ptLast.y);}
+}
+function ptMove(e){
+  if(!ptDrawing||!ptCtx||ptTool==='fill')return;
+  const r=e.target.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  ptCtx.beginPath();
+  if(ptTool==='eraser'){ptCtx.strokeStyle='#fff';ptCtx.lineWidth=parseInt(document.getElementById('pt-size').value)*3;}
+  else{ptCtx.strokeStyle=document.getElementById('pt-color').value;ptCtx.lineWidth=parseInt(document.getElementById('pt-size').value);}
+  document.getElementById('pt-sz').textContent=document.getElementById('pt-size').value+'px';
+  ptCtx.lineCap='round';ptCtx.lineJoin='round';
+  ptCtx.moveTo(ptLast.x,ptLast.y);ptCtx.lineTo(x,y);ptCtx.stroke();
+  ptLast={x,y};
+}
+function ptUp(){ptDrawing=false;ptLast=null;}
+function ptClear(){if(ptCtx){saveHistory();ptCtx.fillStyle='#fff';ptCtx.fillRect(0,0,document.getElementById('pt-canvas').width,document.getElementById('pt-canvas').height);}}
+function ptUndo(){if(ptHistory.length>0&&ptCtx){ptCtx.putImageData(ptHistory.pop(),0,0);}}
+function ptFill(x,y){/* simple fill sim */if(ptCtx){ptCtx.fillStyle=document.getElementById('pt-color').value;ptCtx.fillRect(0,0,document.getElementById('pt-canvas').width,document.getElementById('pt-canvas').height);}}
+
+// ===== WALLPAPER UPLOAD =====
+let customWallpaper=null;
+
+function handleWallpaperUpload(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  
+  const reader=new FileReader();
+  reader.onload=function(e){
+    customWallpaper=e.target.result;
+    applyCustomWallpaper();
+    showNotif('Ayarlar','Özel duvar kağıdı yüklendi!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyCustomWallpaper(){
+  if(!customWallpaper)return;
+  const canvas=document.getElementById('wallpaper');
+  if(!canvas)return;
+  
+  const os=document.getElementById('os');
+  canvas.width=os.offsetWidth;
+  canvas.height=os.offsetHeight;
+  
+  const ctx=canvas.getContext('2d');
+  const img=new Image();
+  img.onload=function(){
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  };
+  img.src=customWallpaper;
+}
+
+function sSection(s){
+  const sc=document.getElementById('s-content');
+  if(s==='wallpaper'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">🎨 Duvar Kağıdı</div>
+    <div style="margin-bottom:16px;">
+      <div style="color:var(--text2);font-size:12px;margin-bottom:8px;">Özel Duvar Kağıdı Yükle:</div>
+      <input type="file" id="wallpaper-upload" accept="image/*" style="display:none;" onchange="handleWallpaperUpload(event)" />
+      <button onclick="document.getElementById('wallpaper-upload').click()" style="background:var(--accent);border:none;color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--font);">Görsel Seç...</button>
+    </div>
+    <div style="color:var(--text2);font-size:12px;margin-bottom:8px;">Varsayılan Duvar Kağıtları:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      ${['linear-gradient(135deg,#0d0a2e,#07071a)','linear-gradient(135deg,#0a2e0d,#07071a)','linear-gradient(135deg,#2e0a0d,#07071a)','linear-gradient(135deg,#0a1229,#07071a)','linear-gradient(135deg,#1a150a,#07071a)','linear-gradient(135deg,#0d1a2e,#1a0720)'].map((c,i)=>`<div onclick="wpIdx=${i};drawWallpaper();showNotif('Ayarlar','Duvar kağıdı değiştirildi!')" style="width:70px;height:50px;border-radius:8px;background:${c};cursor:pointer;border:3px solid ${i===wpIdx?'var(--accent)':'transparent'};transition:all 0.2s;"></div>`).join('')}
+    </div>`;
+  } else if(s==='account'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">👤 Hesap</div>
+    <div style="display:flex;align-items:center;gap:14px;padding:14px;background:rgba(124,111,255,0.1);border-radius:10px;margin-bottom:14px;border:1px solid var(--border);">
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:26px;">${currentUser.avatar}</div>
+      <div><div style="color:#fff;font-size:15px;font-weight:600;font-family:var(--display);">${currentUser.name}</div><div style="color:var(--text2);font-size:12px;font-family:var(--font);">orb1OS Kullanıcısı</div></div>
+    </div>
+    <button onclick="doLogout()" style="background:rgba(232,69,96,0.15);border:1px solid rgba(232,69,96,0.3);color:#ff6b6b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font);">🚪 Çıkış Yap</button>`;
+  } else if(s==='display'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">🖥 Görünüm</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Çözünürlük: <span style="color:#fff">${window.screen.width}×${window.screen.height}</span></div>
+      <div>Yenileme Hızı: <span style="color:#fff">60 Hz</span></div>
+      <div>Ölçek: <span style="color:#fff">%100</span></div>
+      <div style="margin-top:10px;color:var(--text3);font-size:11px;">Arayüz rengi</div>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        ${['#7c6fff','#a855f7','#22d3ee','#f59e0b','#10b981','#ef4444'].map(col=>`<div onclick="document.documentElement.style.setProperty('--accent','${col}');showNotif('Görünüm','Renk değiştirildi!')" style="width:28px;height:28px;border-radius:50%;background:${col};cursor:pointer;border:2px solid rgba(255,255,255,0.2);"></div>`).join('')}
+      </div>
+    </div>`;
+  } else if(s==='about'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">ℹ️ orb1OS Hakkında</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2.2;font-family:var(--font);">
+      <div><span style="color:#fff;font-weight:500;">Sürüm:</span> orb1OS Ultra <span style="color:var(--accent);">v3.0.0</span></div>
+      <div><span style="color:#fff;font-weight:500;">Kernel:</span> web-kernel-3.0</div>
+      <div><span style="color:#fff;font-weight:500;">Yapı:</span> Web tabanlı HTML5</div>
+      <div><span style="color:#fff;font-weight:500;">Geliştirici:</span> orb1OS Ekibi</div>
+      <div><span style="color:#fff;font-weight:500;">Lisans:</span> orb1 Açık Kaynak</div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3);">© 2025 orb1OS — Tüm hakları saklıdır</div>
+    </div>`;
+  }
+}
+
+// ===== ICON EDITOR =====
+const emojis=['🌐','📁','📝','🧮','💻','🎵','🎨','🌤','⚙️','✏️','🏠','📊','🔐','🚀','🎮','📷','📹','🎬','🔊','📡','🗂','💾','📦','🔧','🛠','🔮','⭐','🌙','☀️','🌊','🔥','❄️','🦋','🐉','👾','🤖','🎯','🎲','🃏','♟','🗺','🌍','🌌','🏔','🌴','🍎','🎃','🎄','🎆','🎇','✨','💎','🏆','🥇','🎖','🔑','🗝','⚡','💫','🌈','🎭','🎪'];
+let editingIconIdx=null;let pendingEmoji=null;let iconMode='emoji';let uploadedIconData=null;
+
+function renderIconEditor(){
+    const grid=document.getElementById('icon-editor-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  desktopIcons.forEach((icon,i)=>{
+    const slot=document.createElement('div');
+    slot.className='icon-slot'+(editingIconIdx===i?' selected':'');
+    
+    let iconDisplay;
+    if(icon.type === 'custom' && customIcons.has(icon.ico)){
+      iconDisplay = `<img src="${customIcons.get(icon.ico)}" style="width:28px;height:28px;border-radius:6px;" />`;
+    } else {
+      iconDisplay = icon.ico;
+    }
+    
+    slot.innerHTML=`<div class="ico-big">${iconDisplay}</div><div class="ico-lbl">${icon.label}</div>`;
+    slot.onclick=()=>{
+      editingIconIdx=i;
+      pendingEmoji=icon.ico;
+      uploadedIconData = null;
+      document.getElementById('icon-label-inp').value=icon.label;
+      document.getElementById('upload-preview').innerHTML='';
+      renderIconEditor();
+    };
+    grid.appendChild(slot);
+  });
+  // emoji picker
+  const ep=document.getElementById('emoji-picker-area');
+  if(ep){
+    ep.innerHTML='';
+    emojis.forEach(em=>{
+      const s=document.createElement('span');
+      s.className='ep-item';s.textContent=em;
+      s.onclick=()=>{pendingEmoji=em;};
+      ep.appendChild(s);
+    });
+  }
+}
+function applyIconChange(){
+  if(editingIconIdx===null)return;
+  const newLabel=document.getElementById('icon-label-inp').value.trim();
+  
+  if(iconMode === 'emoji' && pendingEmoji){
+    desktopIcons[editingIconIdx].ico=pendingEmoji;
+    desktopIcons[editingIconIdx].type='emoji';
+  } else if(iconMode === 'custom' && uploadedIconData){
+    const iconId='custom_'+Date.now();
+    customIcons.set(iconId, uploadedIconData);
+    desktopIcons[editingIconIdx].ico=iconId;
+    desktopIcons[editingIconIdx].type='custom';
+  }
+  
+  if(newLabel)desktopIcons[editingIconIdx].label=newLabel;
+  renderDesktop();
+  renderIconEditor();
+  showNotif('Simge Düzenleyici','Simge güncellendi!');
+}
+
+function setIconMode(mode){
+  iconMode=mode;
+  const emojiBtn=document.getElementById('btn-emoji-mode');
+  const customBtn=document.getElementById('btn-custom-mode');
+  const emojiSec=document.getElementById('emoji-section');
+  const customSec=document.getElementById('custom-section');
+  
+  if(mode === 'emoji'){
+    emojiBtn.style.background='var(--accent)';
+    customBtn.style.background='#1a1a30';
+    emojiSec.style.display='flex';
+    customSec.style.display='none';
+  } else {
+    emojiBtn.style.background='#1a1a30';
+    customBtn.style.background='var(--accent)';
+    emojiSec.style.display='none';
+    customSec.style.display='flex';
+  }
+}
+
+function handleIconUpload(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  
+  const reader=new FileReader();
+  reader.onload=function(e){
+    uploadedIconData=e.target.result;
+    const preview=document.getElementById('upload-preview');
+    preview.innerHTML=`<img src="${uploadedIconData}" style="max-width:36px;max-height:36px;border-radius:4px;" />`;
+    showNotif('Simge Yükleme','Dosya yüklendi: '+file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== TRASH FUNCTIONS =====
+function emptyTrash(){
+  showNotif('Çöp Kutusu','Çöp bo?alt?ld?');
+  const trashContent=document.querySelector('#win-trash .wbody > div[style*="flex:1"]');
+  if(trashContent){
+    trashContent.innerHTML='<div style="color:var(--text3);font-size:12px;font-family:var(--font);text-align:center;padding:20px;">Çöp kutusu bo?<br><span style="font-size:11px;">Silinen ögeler burada görünecek</span></div>';
+  }
+}
+
+function restoreTrash(){
+  showNotif('Çöp Kutusu','Tüm ögeler geri yüklendi');
+}
+
+// ===== CONTROL PANEL FUNCTIONS =====
+function cSection(s){
+  const sc=document.getElementById('c-content');
+  if(s==='system'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? Sistem</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>OS: <span style="color:#fff">orb1OS v3.0</span></div>
+      <div>Kernel: <span style="color:#fff">web-kernel-3.0</span></div>
+      <div>RAM: <span style="color:#fff">32 GB</span></div>
+      <div>Depolama: <span style="color:#fff">128 GB SSD</span></div>
+      <div>i?lemci: <span style="color:#fff">orb1 Core i9</span></div>
+    </div>`;
+  } else if(s==='devices'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? Ayg?tlar</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Ekran: <span style="color:#fff">${window.screen.width}×${window.screen.height}</span></div>
+      <div>GPU: <span style="color:#fff">orb1 RTX 9090</span></div>
+      <div>Ses: <span style="color:#fff">orb1 Audio</span></div>
+      <div>A?: <span style="color:#fff">orb1 Network</span></div>
+    </div>`;
+  } else if(s==='network'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? A?</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Durum: <span style="color:#4ade80">Ba?l?</span></div>
+      <div>Wi-Fi: <span style="color:#fff">orb1Network</span></div>
+      <div>IP: <span style="color:#fff">192.168.1.100</span></div>
+      <div>H?z: <span style="color:#fff">1 Gbps</span></div>
+    </div>`;
+  } else if(s==='security'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? Güvenlik</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Antivirüs: <span style="color:#4ade80">Aktif</span></div>
+      <div>Güvenlik Duvar?: <span style="color:#4ade80">Aktif</span></div>
+      <div>Otomatik Güncelleme: <span style="color:#4ade80">Aktif</span></div>
+      <div>Kullanici Hesab?: <span style="color:#fff">${currentUser.name}</span></div>
+    </div>`;
+  } else if(s==='programs'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? Programlar</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Taray?: <span style="color:#fff">orb1 Browser</span></div>
+      <div>Ortam: <span style="color:#fff">orb1 Media</span></div>
+      <div>Terminal: <span style="color:#fff">orb1 Shell</span></div>
+      <div>Düzenleyici: <span style="color:#fff">orb1 Editor</span></div>
+    </div>`;
+  } else if(s==='accounts'){
+    sc.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:14px;color:#fff;font-family:var(--display);">? Hesaplar</div>
+    <div style="color:var(--text2);font-size:13px;line-height:2;font-family:var(--font);">
+      <div>Mevcut Kullan?: <span style="color:#fff">${currentUser.name}</span></div>
+      <div>Rol: <span style="color:#fff">${currentUser.role}</span></div>
+      <div>OS: <span style="color:#fff">${selectedOS}</span></div>
+      <div style="margin-top:12px;">
+        <button onclick="doLogout()" style="background:rgba(124,111,255,0.15);border:1px solid rgba(124,111,255,0.3);color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-family:var(--font);">Çıkış Yap</button>
+      </div>
+    </div>`;
+  }
+}
+
+// ===== SHUTDOWN / RESTART / LOGOUT =====
+function doShutdown(){openApp('shutdown');}
+function doLogout(){
+  const os=document.getElementById('os');
+  os.style.transition='opacity 0.6s';os.style.opacity='0';
+  setTimeout(()=>{
+    os.style.display='none';
+    for(const n in openW){const w=document.getElementById('win-'+n);if(w)w.classList.add('hidden');}
+    openW={};termHist=[];termPos=0;
+    document.getElementById('term-out').innerHTML='';
+    const ls=document.getElementById('login-screen');
+    ls.style.display='flex';ls.classList.remove('fade-out');
+    ls.style.opacity='1';os.style.opacity='1';
+  },600);
+}
+function doRestart(){
+  closeApp('shutdown');
+  const os=document.getElementById('os');
+  os.style.transition='opacity 1s';os.style.opacity='0';
+  setTimeout(()=>{
+    for(const n in openW){const w=document.getElementById('win-'+n);if(w)w.classList.add('hidden');}
+    openW={};termHist=[];
+    document.getElementById('term-out').innerHTML='';
+    updateTB();os.style.opacity='1';
+    showNotif('orb1OS','Sistem yeniden başlatılıyor...',2000);
+    
+    // Sistemi yeniden başlat
+    setTimeout(()=>{
+      showNotif('orb1OS','Sistem yeniden başlatıldı! ✓',3000);
+    },1500);
+  },500);
+}
+function doWake(){
+  const lo=document.getElementById('lock-overlay');
+  lo.style.transition='opacity 0.8s';
+  lo.style.opacity='0';
+  setTimeout(()=>{
+    lo.style.display='none';
+    lo.style.opacity='1';
+    showNotif('orb1OS','Sistem uyandrld! ?',3000);
+  },800);
+}
+function doOff(){
+  closeApp('shutdown');
+  const os=document.getElementById('os');
+  os.style.transition='opacity 1s';os.style.opacity='0';
+  setTimeout(()=>{
+    const lo=document.getElementById('lock-overlay');
+    lo.style.display='flex';
+    os.style.opacity='1';
+    for(const n in openW){const w=document.getElementById('win-'+n);if(w)w.classList.add('hidden');}
+    openW={};updateTB();
+  },1000);
+}
+</script>
+</body>
+</html>

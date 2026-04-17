@@ -1,0 +1,35 @@
+{
+  "name": "orb1os",
+  "version": "1.0.0",
+  "description": "orb1OS - Web-based Operating System",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.orb1os.app",
+    "productName": "orb1OS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "orb1OS_ultra.html",
+      "main.js",
+      "*.ico",
+      "*.cur",
+      "*.ani",
+      "*.crs"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "orb1oslogo.ico"
+    }
+  }
+}
